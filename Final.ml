@@ -40,3 +40,25 @@ type tenv = ty string_map
 (* C ≔ type ⇀ type *)
 type constr = ty string_map
 [@@deriving show {with_path = false}]
+
+let rec infer (g : tenv) (e : exp) (c : constr) : constr = match e with
+
+  | Var(x) -> raise TODO
+
+  | Lambda(x,e) -> raise TODO
+
+  | Apply(e1,e2) -> raise TODO
+
+  | Zero -> raise TODO
+
+  | Succ(e) -> raise TODO
+
+  | Pred(e) -> raise TODO
+
+  | IsZero(e) -> raise TODO
+
+  | True -> raise TODO
+
+  | False -> raise TODO
+
+  | If(e1,e2,e3) -> raise TODO
