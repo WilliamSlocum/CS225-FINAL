@@ -39,3 +39,4 @@ type tenv = ty string_map
 
 (* C ≔ type ⇀ type *)
 type constr = ty string_map
+[@@deriving show {with_path = false}]
