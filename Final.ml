@@ -64,10 +64,28 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
   | Zero -> Val(Nat, c)
 
   | Succ(e') -> raise TODO
+    (*
+    let r = infer g e' c in begin match r with
+      | Val(t, c) ->
+        let c' = c union (t, Nat) in
+        Val(Nat, c')
+    *)
 
   | Pred(e') -> raise TODO
+  (*
+  let r = infer g e' c in begin match r with
+    | Val(t, c) ->
+      let c' = c union (t, Nat) in
+      Val(Nat, c')
+  *)
 
   | IsZero(e') -> raise TODO
+  (*
+  let r = infer g e' c in begin match r with
+    | Val(t, c) ->
+      let c' = c union (t, Nat) in
+      Val(Nat, c')
+  *)
 
   | True -> Val(Bool, c)
 
