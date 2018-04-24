@@ -2,6 +2,7 @@
 (* Course: UVM CS 225 Spring 2018 - Darais *)
 (* Final Project *)
 
+open Util
 open StringSetMap
 
 (* Syntax For Types *)
