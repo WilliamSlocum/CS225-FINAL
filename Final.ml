@@ -65,6 +65,17 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
     end
 
   | Apply(e1,e2) -> raise TODO
+  (*
+    let v1 = infer g e1 c in
+    let v2 = infer g e2 c in
+      begin match v1 with
+        | Val(t1,c1) -> begin match v2 with
+          | Val(t2,c2) ->
+            let c' = c1 u c2 u (t1, Fun(t2,X)) in
+            Val(X,c')
+          | _ -> Stuck
+        | _ -> Stuck
+  *)
 
   | Zero -> Val(Nat, c)
 
