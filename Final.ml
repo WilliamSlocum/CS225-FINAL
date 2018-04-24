@@ -111,3 +111,17 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
   | False -> Val(Bool, c)
 
   | If(e1,e2,e3) -> raise TODO
+  (*
+  let v1 = infer g e1 c in
+  let v2 = infer g e2 c in
+  let v3 = infer g e3 c in
+    begin match v1 with
+      | Val(t1,c1) -> begin match v2 with
+        | Val(t2,c2) -> begin match v3 with
+          | Val(t3,c3) ->
+            let c' = c1 u c2 u c3 u (t1, Bool) u (t2, t3) in
+            Val(t2,c')
+          | _ -> Stuck
+        | _ -> Stuck
+      | _ -> Stuck
+  *)
