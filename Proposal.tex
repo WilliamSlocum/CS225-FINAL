@@ -1,0 +1,76 @@
+\documentclass{article}
+
+\usepackage{microtype}
+
+\usepackage{amsmath}
+\usepackage{mathtools}
+
+\title{CS225 Spring 2018---Final Project Proposal}
+\author
+{
+  William Slocum \\ \small{\texttt{@WilliamSlocum}} 
+  \\ \small{\texttt{https://github.com/WilliamSlocum/CS225-FINAL}}
+}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section*{Project: Type Reconstruction}
+
+We propose to implement Type Reconstruction, which will support powerful Type Inference, reducing the need for explicit Type Annotations.
+
+\paragraph{Base Language}
+
+We will work with a Language containing Booleans, Natural Numbers, Functions, and Let-Bindings.
+
+\paragraph{Constraint-Based Typing} Without explicit Type Annotations, it isn't always possible to tell if an Expression is well-typed. Instead, we will calculate a set of possibilities where such an Expression would be well-typed. First, some definitions...\\
+\\
+Let $\Gamma$ be a context and $t$ a term. A solution for ($\Gamma$, $t$) is a pair ($\sigma$, $T$) such that $\sigma$ $\Gamma$ $\vdash$ $\sigma$ $t$ : $T$.\\
+\\
+A Constraint Set $C$ is a set of equations $\{S_{i} = T_{i}\}$. \\
+\\
+We say a substitution $\sigma$ unifies a set $C$ if for every equation $S = T$ in $C$, the substitution instances of $\sigma S$ and $\sigma T$ are identical. \\
+\\
+We will implement Constraint Based Typing by writing an algorithm that, given a context $\Gamma$ and a term $t$, finds a set of constraints.\\
+\\
+Then, we will use a Unification Algorithm to calculate Solutions to those Constraints.
+
+\paragraph{Project Goals}
+
+For this Project, I hope to complete...
+\begin{enumerate}
+\item A Constraint-Based Typing Function
+\item A Unification Functions that calculates solutions to Constraint Sets
+\end{enumerate}
+
+\paragraph{Expected Challenges}
+
+I anticipate the beginning of this Project will be the most challenging; structuring the OCaml code, 
+understanding the various concepts. Once I get going, I hope things will run smoothly.
+
+\paragraph{Timeline and Milestones} \noindent
+By the Checkpoint I hope to have completed...
+\begin{enumerate}
+\item A Prototype Implementation of the Typing Function
+\item A Prototype Implementation of the Unification Function
+\item Several Test Cases for these Functions
+\end{enumerate}
+
+\noindent
+By the Final Project Draft I hope to have completed...
+\begin{enumerate}
+\item Full Implementations of Typing and Unification Functions
+\item A Comprehensive Test Suite
+\item A Draft of a Presentation
+\end{enumerate}
+
+\noindent
+By the Final Project Submission I hope to have completed...
+\begin{enumerate}
+\item A Finished Presentation
+\item A Short Writeup
+\item Any remaining Work that was Missing in the Draft
+\end{enumerate}
+
+\end{document}
