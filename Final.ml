@@ -74,6 +74,7 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
       | Val(t, c) ->
         let c' = c union (t, Nat) in
         Val(Nat, c')
+    | _ -> Stuck
     *)
 
   | Pred(e') -> raise TODO
@@ -82,6 +83,7 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
     | Val(t, c) ->
       let c' = c union (t, Nat) in
       Val(Nat, c')
+    | _ -> Stuck
   *)
 
   | IsZero(e') -> raise TODO
@@ -90,6 +92,7 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
     | Val(t, c) ->
       let c' = c union (t, Nat) in
       Val(Nat, c')
+    | _ -> Stuck
   *)
 
   | True -> Val(Bool, c)
