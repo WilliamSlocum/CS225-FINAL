@@ -7,6 +7,10 @@ open StringSetMap
 
 (* Syntax For Types *)
 
+(* X ∈ tvar ≈ 𝕊 *)
+type tvar = string
+[@@deriving show {with_path = false}]
+
 type ty =
   | Bool
   | Nat
