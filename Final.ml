@@ -57,17 +57,17 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
     let t = StringMap.find x g in
     Val(t, c)
 
-  | Lambda(x,e) -> raise TODO
+  | Lambda(x,e') -> raise TODO
 
   | Apply(e1,e2) -> raise TODO
 
   | Zero -> Val(Nat, c)
 
-  | Succ(e) -> raise TODO
+  | Succ(e') -> raise TODO
 
-  | Pred(e) -> raise TODO
+  | Pred(e') -> raise TODO
 
-  | IsZero(e) -> raise TODO
+  | IsZero(e') -> raise TODO
 
   | True -> Val(Bool, c)
 
