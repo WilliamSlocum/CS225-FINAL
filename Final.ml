@@ -36,3 +36,6 @@ type exp =
 (* Γ ∈ tenv ≔ var ⇀ type *)
 type tenv = ty string_map
 [@@deriving show {with_path = false}]
+
+(* C ≔ type ⇀ type *)
+type constr = ty string_map
