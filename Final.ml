@@ -59,7 +59,7 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
 
   | Apply(e1,e2) -> raise TODO
 
-  | Zero -> raise TODO
+  | Zero -> Val(Nat, c)
 
   | Succ(e) -> raise TODO
 
@@ -67,8 +67,8 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
 
   | IsZero(e) -> raise TODO
 
-  | True -> raise TODO
+  | True -> Val(Bool, c)
 
-  | False -> raise TODO
+  | False -> Val(Bool, c)
 
   | If(e1,e2,e3) -> raise TODO
