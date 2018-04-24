@@ -2,6 +2,8 @@
 (* Course: UVM CS 225 Spring 2018 - Darais *)
 (* Final Project *)
 
+open StringSetMap
+
 (* Syntax For Types *)
 
 type ty =
@@ -29,4 +31,8 @@ type exp =
   | Var of var
   | Lambda of var * exp
   | Apply of exp * exp
+[@@deriving show {with_path = false}]
+
+(* Γ ∈ tenv ≔ var ⇀ type *)
+type tenv = ty string_map
 [@@deriving show {with_path = false}]
