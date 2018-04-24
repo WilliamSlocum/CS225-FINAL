@@ -53,7 +53,9 @@ type result =
 
 let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
 
-  | Var(x) -> raise TODO
+  | Var(x) ->
+    let t = StringMap.find x g in
+    Val(t, c)
 
   | Lambda(x,e) -> raise TODO
 
