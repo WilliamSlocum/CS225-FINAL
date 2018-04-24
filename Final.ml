@@ -34,7 +34,7 @@ type exp =
   | Pred of exp
   | IsZero of exp
   | Var of var
-  | Lambda of var * exp
+  | Lambda of var * ty * exp
   | Apply of exp * exp
 [@@deriving show {with_path = false}]
 
@@ -57,7 +57,12 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
     let t = StringMap.find x g in
     Val(t, c)
 
-  | Lambda(x,e') -> raise TODO
+  | Lambda(x,t1,e') ->
+    let g' = StringMap.add x t1 g in
+    let v = infer g' e' c in begin match v with
+      | Val(t2, c) -> Val(Fun(t1,t2),c)
+      | _ -> Stuck
+    end
 
   | Apply(e1,e2) -> raise TODO
 
