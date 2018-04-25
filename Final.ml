@@ -35,6 +35,7 @@ type exp =
   | IsZero of exp
   | Var of var
   | Lambda of var * ty * exp
+  | Lambda of var * exp
   | Apply of exp * exp
 [@@deriving show {with_path = false}]
 
@@ -63,6 +64,8 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
       | Val(t2, c) -> Val(Fun(t1,t2),c)
       | _ -> Stuck
     end
+
+  | Lambda(x,e') -> raise TODO
 
   | Apply(e1,e2) -> raise TODO
   (*
