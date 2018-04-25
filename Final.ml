@@ -4,6 +4,7 @@
 
 open Util
 open StringSetMap
+open TermPairSet
 
 (* Syntax For Types *)
 
@@ -43,8 +44,8 @@ type exp =
 type tenv = ty string_map
 [@@deriving show {with_path = false}]
 
-(* C ≔ type ⇀ type *)
-type constr = ty string_map
+(* C ≔ {term = term} *)
+type constr = ty term_pair_set
 [@@deriving show {with_path = false}]
 
 type result =
