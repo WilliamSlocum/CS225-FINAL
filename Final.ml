@@ -4,7 +4,6 @@
 
 open Util
 open StringSetMap
-open TermPairSet
 
 (* Syntax For Types *)
 
@@ -45,6 +44,12 @@ type tenv = ty string_map
 [@@deriving show {with_path = false}]
 
 (* C ≔ {term = term} *)
+
+module TermPairSet = struct
+ include Set.Make(struct type t = ty * ty let compare = Pervasives.compare end)
+end
+type term_pair_set = TermPairSet.t
+
 type constr = ty term_pair_set
 [@@deriving show {with_path = false}]
 
