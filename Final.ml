@@ -163,3 +163,9 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
         end
       | _ -> Stuck
     end
+
+(*
+let x = Lambda("x",True) ;;
+let z = infer (StringMap.empty) (If(True,x,x)) (TermPairSet.empty) ;;
+let _ = print_endline ([%show : result] z)
+*)
