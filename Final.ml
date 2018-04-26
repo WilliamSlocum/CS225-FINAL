@@ -70,6 +70,13 @@ type term_pair_set = TermPairSet.t
 type constr = term_pair_set
 [@@deriving show {with_path = false}]
 
+(* Create a Function that Creates Unique Type Variables *)
+let n = ref 0 ;;
+
+let uniqueVar() : string =
+  let _ = n := !n + 1 in
+  "X" ^ string_of_int !n ;;
+
 type result =
   | Val of ty * constr
   | Stuck
