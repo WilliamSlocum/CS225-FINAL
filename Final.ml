@@ -116,24 +116,24 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
 
   | Succ(e') ->
     let r = infer g e' c in begin match r with
-      | Val(t, c') ->
-        let c'' = TermPairSet.add (t, Nat) c' in
+      | Val(t, c1) ->
+        let c' = TermPairSet.add (t, Nat) c1 in
         Val(Nat, c'')
       | _ -> Stuck
     end
 
   | Pred(e') ->
     let r = infer g e' c in begin match r with
-      | Val(t, c') ->
-        let c'' = TermPairSet.add (t, Nat) c' in
+      | Val(t, c1) ->
+        let c' = TermPairSet.add (t, Nat) c1 in
         Val(Nat, c'')
       | _ -> Stuck
     end
 
   | IsZero(e') ->
     let r = infer g e' c in begin match r with
-      | Val(t, c') ->
-        let c'' = TermPairSet.add (t, Nat) c' in
+      | Val(t, c1) ->
+        let c' = TermPairSet.add (t, Nat) c1 in
         Val(Nat, c'')
       | _ -> Stuck
     end
