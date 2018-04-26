@@ -114,32 +114,29 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
 
   | Zero -> Val(Nat, c)
 
-  | Succ(e') -> raise TODO
-    (*
+  | Succ(e') ->
     let r = infer g e' c in begin match r with
-      | Val(t, c) ->
-        let c' = c union (t, Nat) in
-        Val(Nat, c')
-    | _ -> Stuck
-    *)
+      | Val(t, c') ->
+        let c'' = TermPairSet.add (t, Nat) c' in
+        Val(Nat, c'')
+      | _ -> Stuck
+    end
 
-  | Pred(e') -> raise TODO
-  (*
-  let r = infer g e' c in begin match r with
-    | Val(t, c) ->
-      let c' = c union (t, Nat) in
-      Val(Nat, c')
-    | _ -> Stuck
-  *)
+  | Pred(e') ->
+    let r = infer g e' c in begin match r with
+      | Val(t, c') ->
+        let c'' = TermPairSet.add (t, Nat) c' in
+        Val(Nat, c'')
+      | _ -> Stuck
+    end
 
-  | IsZero(e') -> raise TODO
-  (*
-  let r = infer g e' c in begin match r with
-    | Val(t, c) ->
-      let c' = c union (t, Nat) in
-      Val(Nat, c')
-    | _ -> Stuck
-  *)
+  | IsZero(e') ->
+    let r = infer g e' c in begin match r with
+      | Val(t, c') ->
+        let c'' = TermPairSet.add (t, Nat) c' in
+        Val(Nat, c'')
+      | _ -> Stuck
+    end
 
   | True -> Val(Bool, c)
 
