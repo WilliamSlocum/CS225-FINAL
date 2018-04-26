@@ -88,16 +88,12 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
       | _ -> Stuck
     end
 
-  | Lambda(x,e') -> raise TODO
-  (*
-    Instantiate Type Variable X
-    let g' = StringMap.add x X g in
+  | Lambda(x,e') ->
+    let g' = StringMap.add x (TVar("X")) g in
     let v = infer g' e' c in begin match v with
-      | Val(t, c) -> Val(Fun(X,t),c)
+      | Val(t, c') -> Val(Fun(TVar("X"),t),c')
       | _ -> Stuck
     end
-
-  *)
 
   | Apply(e1,e2) ->
     let v1 = infer g e1 c in
