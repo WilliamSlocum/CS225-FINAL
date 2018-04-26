@@ -164,6 +164,9 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
       | _ -> Stuck
     end
 
+let z = infer (StringMap.empty) (If(True,False,False)) (TermPairSet.empty) ;;
+match z with | Val(a,b) -> print_endline ([%show : constr] b)
+
 (*
 let x = Lambda("x",True) ;;
 let z = infer (StringMap.empty) (If(True,x,x)) (TermPairSet.empty) ;;
