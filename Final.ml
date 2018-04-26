@@ -96,20 +96,22 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
     end
 
   | Lambda(x,e') ->
-    let g' = StringMap.add x (TVar("X")) g in
+    let xt = TVar(uniqueVar()) in
+    let g' = StringMap.add x xt g in
     let v = infer g' e' c in begin match v with
-      | Val(t, c') -> Val(Fun(TVar("X"),t),c')
+      | Val(t, c') -> Val(Fun(xt,t),c')
       | _ -> Stuck
     end
 
   | Apply(e1,e2) ->
+    let xt = TVar(uniqueVar()) in
     let v1 = infer g e1 c in
     let v2 = infer g e2 c in
       begin match v1 with
         | Val(t1,c1) -> begin match v2 with
           | Val(t2,c2) ->
-            let c' = TermPairSet.add (t1, Fun(t2,TVar("X"))) (TermPairSet.union c1 c2) in
-            Val(TVar("X"),c')
+            let c' = TermPairSet.add (t1, Fun(t2,xt)) (TermPairSet.union c1 c2) in
+            Val(xt,c')
           | _ -> Stuck
           end
         | _ -> Stuck
