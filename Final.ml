@@ -99,18 +99,18 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
 
   *)
 
-  | Apply(e1,e2) -> raise TODO
-  (*
+  | Apply(e1,e2) ->
     let v1 = infer g e1 c in
     let v2 = infer g e2 c in
       begin match v1 with
         | Val(t1,c1) -> begin match v2 with
           | Val(t2,c2) ->
-            let c' = c1 u c2 u (t1, Fun(t2,X)) in
-            Val(X,c')
+            let c' = TermPairSet.add (t1, Fun(t2,TVar("X"))) (TermPairSet.union c1 c2) in
+            Val(TVar("X"),c')
           | _ -> Stuck
+          end
         | _ -> Stuck
-  *)
+      end
 
   | Zero -> Val(Nat, c)
 
