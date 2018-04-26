@@ -174,3 +174,40 @@ let x = Lambda("x",True) ;;
 let z = infer (StringMap.empty) (If(True,x,x)) (TermPairSet.empty) ;;
 let _ = print_endline ([%show : result] z)
 *)
+
+(*
+let unify (c : int) : bool =
+  if 1 = 1 then true else false ;;
+
+let _ = print_endline ([%show : bool] (unify 1))
+*)
+
+(*
+let rec unify (c : constr) : constr =
+  if TermPairSet.is_empty c
+  then c
+  else
+    let el = TermPairSet.choose c in
+    let c' = TermPairSet.remove el c in
+    let s = fst el in
+    let t = snd el in
+    if s = t then (unify c')
+    else
+      match s with
+      | Fun(S1,S2) ->
+        begin match t with
+          | Fun(T1,T2) -> 0
+          | _ -> FAIL
+        end
+
+      | TVar(X) ->
+        if 0
+        then 0
+        else begin match t with
+          | TVar(Y) ->
+            if 0
+            then 0
+            else FAIL
+          | _ -> FAIL
+        end
+  *)
