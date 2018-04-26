@@ -45,12 +45,29 @@ type tenv = ty string_map
 
 (* C ≔ {term = term} *)
 
-module TermPairSet = struct
- include Set.Make(struct type t = ty * ty let compare = Pervasives.compare end)
-end
-type term_pair_set = TermPairSet.t
+let pp_pair
+ (pp_a : Format.formatter -> 'a -> unit)
+ (pp_b : Format.formatter -> 'b -> unit)
+ (fmt : Format.formatter)
+ (ab : ('a * 'b))
+ : unit =
+   let (a,b) = ab in
+   Format.fprintf fmt "@[<2>(" ;
+   pp_a fmt a ;
+   Format.fprintf fmt ",@ " ;
+   pp_a fmt b ;
+   Format.fprintf fmt "@,)@]"
 
-type constr = ty term_pair_set
+module TermPairSet = struct
+  include Set.Make(struct type t = ty * ty let compare = Pervasives.compare end)
+  let pp (fmt : Format.formatter) (ss : t) : unit =
+    pp_set (pp_pair pp_ty pp_ty) fmt (elements ss)
+end
+
+type term_pair_set = TermPairSet.t
+[@@deriving show {with_path=false}]
+
+type constr = term_pair_set
 [@@deriving show {with_path = false}]
 
 type result =
