@@ -139,7 +139,7 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
     let r = infer g e' c in begin match r with
       | Val(t, c1) ->
         let c' = TermPairSet.add (t, Nat) c1 in
-        Val(Nat, c')
+        Val(Bool, c')
       | _ -> Stuck
     end
 
