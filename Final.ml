@@ -169,11 +169,19 @@ let z = infer (StringMap.empty) (If(True,False,False)) (TermPairSet.empty) ;;
 match z with | Val(a,b) -> print_endline ([%show : constr] b)
 *)
 
-(*
-let x = Lambda("x",True) ;;
-let z = infer (StringMap.empty) (If(True,x,x)) (TermPairSet.empty) ;;
+let w = IsZero(Zero) ;;
+let x = Pred(Succ(Zero)) ;;
+let y = Succ(Zero) ;;
+let z = infer (StringMap.empty) (If(w,x,y)) (TermPairSet.empty) ;;
 let _ = print_endline ([%show : result] z)
-*)
+
+let x = IsZero(False) ;;
+let z = infer (StringMap.empty) (If(True,x,x)) (TermPairSet.empty) ;;
+let _ = print_endline ([%show : result] z) ;;
+
+let x = Apply(Lambda("X0", Var("X0")),Succ(Zero))
+let z = infer (StringMap.empty) (IsZero(x)) (TermPairSet.empty) ;;
+let _ = print_endline ([%show : result] z) ;;
 
 (*
 let unify (c : int) : bool =
