@@ -219,3 +219,5 @@ let rec unify (c : constr) : constr =
           | _ -> FAIL
         end
   *)
+
+(* Name: <William H Slocum> *)
