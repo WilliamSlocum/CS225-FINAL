@@ -213,6 +213,7 @@ let rec tsubst (xt : tvar) (t : ty) (c : constr) : constr =
               end
         end
 
+(* MUST STILL IMPLEMENT X !E FV(T) *)
 let rec unify (c : constr) : constr =
   if TermPairSet.is_empty c
   then c
