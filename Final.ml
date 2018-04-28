@@ -190,6 +190,20 @@ let unify (c : int) : bool =
 let _ = print_endline ([%show : bool] (unify 1))
 *)
 
+let rec tsubst (xt : tvar) (t : ty) (c : constr) : constr =
+  let el = TermPairSet.choose c in
+  let c' = TermPairSet.remove el c in begin match el with
+    | (t1,t2) ->
+      if t1 = xt
+      then TermPairSet.union (tsubst xt t c') (t,t2)
+      else
+        if t2 = xt
+        then TermPairSet.union (tsubst xt t c') (t1,t)
+        else
+          TermPairSet.union (tsubst xt t c') (t1,t2)
+  end
+
+            (*
 let rec unify (c : constr) : constr =
   if TermPairSet.is_empty c
   then c
@@ -203,7 +217,7 @@ let rec unify (c : constr) : constr =
       match s with
       | Fun(S1,S2) ->
         begin match t with
-          | Fun(T1,T2) -> TermPairSet.union c' (TermPairSet.union (S1,T1) (S2, T2))
+          | Fun(T1,T2) -> TermPairSet.union c' (TermPairSet.union (S1,T1) (S2,T2))
           | _ -> raise TODO
         end
 
@@ -217,6 +231,6 @@ let rec unify (c : constr) : constr =
             else FAIL
           | _ -> FAIL
         end
-
+*)
 
 (* Name: <William H Slocum> *)
