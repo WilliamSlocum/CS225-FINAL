@@ -242,7 +242,7 @@ let rec unify (c : constr) : constr =
       end
     | Fun(s1,s2) ->
       begin match t with
-        | Fun(t1,t2) -> unify (TermPairSet.union c' (TermPairSet.add (s2,t2) (TermPairSet.add (s1,t1) (TermPairSet.empty))))
+        | Fun(t1,t2) -> unify (TermPairSet.union c' (TermPairSet.add (s2,t2) (TermPairSet.singleton (s1,t1))))
         | _ -> raise TODO
       end
 
