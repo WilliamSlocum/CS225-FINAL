@@ -189,6 +189,18 @@ let unify (c : int) : bool =
 let _ = print_endline ([%show : bool] (unify 1))
 *)
 
+let rec tsubst (zt : tvar) (t : ty) (tS : ty) : ty = match t with
+  | Bool -> Bool
+  | Nat -> Nat
+  | TVar(xt) ->
+    if xt = zt
+    then tS
+    else t
+  | Fun(s1,s2) ->
+    let s1' = tsubst zt s1 tS in
+    let s2' = tsubst zt s2 tS in
+    Fun(s1',s2')
+
 let rec csubst (zt : tvar) (t : ty) (c : constr) : constr =
   if TermPairSet.is_empty c
   then c
@@ -200,32 +212,67 @@ let rec csubst (zt : tvar) (t : ty) (c : constr) : constr =
         begin match t1 with
           | Bool ->
           begin match t2 with
-            | Bool -> TermPairSet.add (t1,t2) (tsubst zt t c')
-            | Nat -> TermPairSet.add (t1,t2) (tsubst zt t c')
+            | Bool -> TermPairSet.add (t1,t2) (csubst zt t c')
+            | Nat -> TermPairSet.add (t1,t2) (csubst zt t c')
             | TVar(yt) ->
               if yt = zt
-              then TermPairSet.add (t1,t) (tsubst zt t c')
-              else TermPairSet.add (t1,t2) (tsubst zt t c')
+              then TermPairSet.add (t1,t) (csubst zt t c')
+              else TermPairSet.add (t1,t2) (csubst zt t c')
             | Fun(s1,s2) ->
-              TermPairSet.add (t1, Fun((tsubst zt t c ))) (tsubst zt t c')
+              TermPairSet.add (t1, Fun((tsubst zt s1 t ),(tsubst zt s2 t))) (csubst zt t c')
           end
+
+          | Nat ->
+          begin match t2 with
+            | Bool -> TermPairSet.add (t1,t2) (csubst zt t c')
+            | Nat -> TermPairSet.add (t1,t2) (csubst zt t c')
+            | TVar(yt) ->
+              if yt = zt
+              then TermPairSet.add (t1,t) (csubst zt t c')
+              else TermPairSet.add (t1,t2) (csubst zt t c')
+            | Fun(s1,s2) ->
+              TermPairSet.add (t1, Fun((tsubst zt s1 t ),(tsubst zt s2 t))) (csubst zt t c')
+          end
+
+          | TVar(xt) ->
+            begin match t2 with
+              | Bool ->
+                if xt = zt
+                then TermPairSet.add (t,t2) (csubst zt t c')
+                else TermPairSet.add (t1,t2) (csubst zt t c')
+              | Nat ->
+                if xt = zt
+                then TermPairSet.add (t,t2) (csubst zt t c')
+                else TermPairSet.add (t1,t2) (csubst zt t c')
+              | TVar(yt) ->
+                if xt = zt
+                then
+                  if yt = zt
+                  then TermPairSet.add (t,t) (csubst zt t c')
+                  else TermPairSet.add (t,t2) (csubst zt t c')
+                else
+                  if yt = zt
+                  then TermPairSet.add (t1,t) (csubst zt t c')
+                  else TermPairSet.add (t1,t2) (csubst zt t c')
+              | Fun(s1,s2) ->
+                if xt = zt
+                then TermPairSet.add (t, Fun((tsubst zt s1 t ),(tsubst zt s2 t))) (csubst zt t c')
+                else TermPairSet.add (t1, Fun((tsubst zt s1 t ),(tsubst zt s2 t))) (csubst zt t c')
+            end
+
+          | Fun(r1,r2) ->
+            begin match t2 with
+              | Bool -> TermPairSet.add (Fun((tsubst zt r1 t ),(tsubst zt r2 t)),t2) (csubst zt t c')
+              | Nat -> TermPairSet.add (Fun((tsubst zt r1 t ),(tsubst zt r2 t)),t2) (csubst zt t c')
+              | TVar(yt) ->
+                if yt = zt
+                then TermPairSet.add (Fun((tsubst zt r1 t ),(tsubst zt r2 t)),t) (csubst zt t c')
+                else TermPairSet.add (Fun((tsubst zt r1 t ),(tsubst zt r2 t)),t2) (csubst zt t c')
+              | Fun(s1,s2) ->
+                TermPairSet.add (Fun((tsubst zt r1 t ),(tsubst zt r2 t)),Fun((tsubst zt s1 t ),(tsubst zt s2 t))) (csubst zt t c')
+            end
         end
     end
-          | Nat -> raise TODO
-          | TVar(xt) -> raise TODO
-          | Fun(s1,s2) -> raise TODO
-
-let rec tsubst (zt : tvar) (t : ty) (tS : ty) : ty = match t with
-  | Bool -> Bool
-  | Nat -> Nat
-  | TVar(xt) ->
-    if xt = zt
-    then tS
-    else s
-  | Fun(s1,s2) ->
-    let s1' = tsubst zt s1 tS in
-    let s2' = tsubst zt s2 tS in
-    Fun(s1',s2')
 
 let rec occurCheck (xt : tvar) (t : ty) : bool = match t with
   | Bool -> true
