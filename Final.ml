@@ -14,7 +14,6 @@ type tvar = string
 type ty =
   | Bool
   | Nat
-  | Prod of ty * ty
   | Fun of ty * ty
   | TVar of tvar
 [@@deriving show {with_path = false}]
