@@ -291,52 +291,71 @@ let rec occurCheck (xt : tvar) (t : ty) : bool = match t with
       else false
     else false
 
+type uresult =
+  | Val of constr * constr
+  | Stuck
+[@@deriving show {with_path = false}]
+
 (* MUST STILL IMPLEMENT X !E FV(T) *)
-let rec unify (c : constr) : constr =
+let rec unify (c : constr) (sb : constr) : uresult =
   if TermPairSet.is_empty c
-  then c
+  then Val(c,sb)
   else
     let el = TermPairSet.choose c in
     let c' = TermPairSet.remove el c in
     let s = fst el in
     let t = snd el in
-    match s with
-    | TVar(xt) ->
-      begin match t with
-        | Bool -> unify (csubst xt t c')
-        | Nat -> unify (csubst xt t c')
-        | TVar(yt) ->
-          if xt = yt
-          then unify c'
-          else unify (csubst xt t c')
-        | Fun(t1,t2) ->
-          if (occurCheck xt t)
-          then unify (csubst xt t c')
-          else raise TODO
-      end
-    | Fun(s1,s2) ->
-      begin match t with
-        | Bool -> raise TODO
-        | Nat -> raise TODO
-        | TVar(yt) ->
-          if (occurCheck yt s)
-          then unify (csubst yt s c')
-          else raise TODO
-        | Fun(t1,t2) -> unify (TermPairSet.union c' (TermPairSet.add (s2,t2) (TermPairSet.singleton (s1,t1))))
-      end
+    begin match s with
     | Bool ->
       begin match t with
-        | Bool -> unify c'
-        | Nat -> raise TODO
-        | TVar(yt) -> unify (csubst yt s c')
-        | Fun(t1,t2) -> raise TODO
+        | Bool -> unify c' sb
+        | Nat -> Stuck
+        | TVar(yt) -> unify (csubst yt s c') (TermPairSet.add (TVar(yt),Bool) (csubst yt s sb))
+        | Fun(t1,t2) -> Stuck
       end
     | Nat ->
       begin match t with
-        | Bool -> raise TODO
-        | Nat -> unify c'
-        | TVar(yt) -> unify (csubst yt s c')
-        | Fun(t1,t2) -> raise TODO
+        | Bool -> Stuck
+        | Nat -> unify c' sb
+        | TVar(yt) -> unify (csubst yt s c') (TermPairSet.add (TVar(yt),Nat) (csubst yt s sb))
+        | Fun(t1,t2) -> Stuck
       end
+    | TVar(xt) ->
+      begin match t with
+        | Bool -> unify (csubst xt t c') (TermPairSet.add (TVar(xt),Bool) (csubst xt t sb))
+        | Nat -> unify (csubst xt t c') (TermPairSet.add (TVar(xt),Nat) (csubst xt t sb))
+        | TVar(yt) ->
+          if xt = yt
+          then unify c' sb
+          else unify (csubst xt t c') (TermPairSet.add (TVar(xt), t) (csubst xt t sb))
+        | Fun(t1,t2) ->
+          if (occurCheck xt t)
+          then unify (csubst xt t c') (TermPairSet.add (TVar(xt), t) (csubst xt t sb))
+          else Stuck
+      end
+    | Fun(s1,s2) ->
+      begin match t with
+        | Bool -> Stuck
+        | Nat -> Stuck
+        | TVar(yt) ->
+          if (occurCheck yt s)
+          then unify (csubst yt s c') (TermPairSet.add (TVar(yt),s) (csubst yt s sb))
+          else Stuck
+        | Fun(t1,t2) -> unify (TermPairSet.union c' (TermPairSet.add (s2,t2) (TermPairSet.singleton (s1,t1)))) sb
+      end
+    end
+
+let x = Apply(Lambda("X0", Var("X0")),Succ(Zero))
+let z = infer (StringMap.empty) (IsZero(x)) (TermPairSet.empty) ;;
+let _ = print_endline ([%show : result] z) ;;
+
+let c : constr = TermPairSet.add (TVar("z"),(Fun(TVar("u"),TVar("w")))) (TermPairSet.singleton (Fun(TVar("x"),TVar("y")),Fun(TVar("y"),TVar("z")))) ;;
+
+let w = unify c (TermPairSet.empty) ;;
+let _ = print_endline ([%show : uresult] w) ;;
+
+let c : constr = TermPairSet.singleton (TVar("x"),Bool)
+let w = unify c (TermPairSet.empty) ;;
+let _ = print_endline ([%show : uresult] w) ;;
 
 (* Name: <William H Slocum> *)
