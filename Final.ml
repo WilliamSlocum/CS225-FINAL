@@ -241,20 +241,41 @@ let rec unify (c : constr) : constr =
     let t = snd el in
     match s with
     | TVar(xt) ->
-      if (occurCheck xt t)
-      then unify (tsubst xt t c')
-      else raise TODO
-
-    | Fun(s1,s2) -> begin match t with
-        | Fun(t1,t2) -> unify (TermPairSet.union c' (TermPairSet.add (s2,t2) (TermPairSet.singleton (s1,t1))))
-        | _ -> raise TODO
-      end
-
-    | _ ->
       begin match t with
+        | Bool -> unify (tsubst xt t c')
+        | Nat -> unify (tsubst xt t c')
         | TVar(yt) ->
-          if (occurCeck yt s)
+          if xt = yt
+          then unify c'
+          else unify (tsubst xt t c')
+        | Fun(t1,t2) ->
+          if (occurCheck xt t)
+          then unify (tsubst xt t c')
+          else raise TODO
+      end
+    | Fun(s1,s2) ->
+      begin match t with
+        | Bool -> raise TODO
+        | Nat -> raise TODO
+        | TVar(yt) ->
+          if (occurCheck yt s)
           then unify (tsubst yt s c')
           else raise TODO
+        | Fun(t1,t2) -> unify (TermPairSet.union c' (TermPairSet.add (s2,t2) (TermPairSet.singleton (s1,t1))))
+      end
+    | Bool ->
+      begin match t with
+        | Bool -> unify c'
+        | Nat -> raise TODO
+        | TVar(yt) -> unify (tsubst yt s c')
+        | Fun(t1,t2) -> raise TODO
+      end
+    | Nat ->
+      begin match t with
+        | Bool -> raise TODO
+        | Nat -> unify c'
+        | TVar(yt) -> unify (tsubst yt s c')
+        | Fun(t1,t2) -> raise TODO
+      end
 
 (* Name: <William H Slocum> *)
