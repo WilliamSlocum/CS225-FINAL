@@ -203,8 +203,8 @@ let rec unify (c : constr) : constr =
       match s with
       | Fun(S1,S2) ->
         begin match t with
-          | Fun(T1,T2) -> TermPairSet.union c' (TermPairSet.union (S1,T1) (S2, T2)) 
-          | _ -> FAIL
+          | Fun(T1,T2) -> TermPairSet.union c' (TermPairSet.union (S1,T1) (S2, T2))
+          | _ -> raise TODO
         end
 
       | TVar(X) ->
