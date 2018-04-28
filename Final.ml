@@ -189,29 +189,28 @@ let unify (c : int) : bool =
 let _ = print_endline ([%show : bool] (unify 1))
 *)
 
-let rec tsubst (xt : tvar) (t : ty) (c : constr) : constr =
-  if TermPairSet.is_empty c then c else
+let rec csubst (zt : tvar) (t : ty) (c : constr) : constr =
+  if TermPairSet.is_empty c
+  then c
+  else
     let el = TermPairSet.choose c in
-    let c' = TermPairSet.remove el c in match el with
+    let c' = TermPairSet.remove el c in
+    begin match el with
       | (t1,t2) ->
         begin match t1 with
-          | TVar(zt) ->
-            if zt = xt
-            then
-              begin match t2 with
-                | TVar(wt) ->
-                  if wt = xt
-                  then TermPairSet.add (t,t) (tsubst xt t c')
-                  else TermPairSet.add (t,t2) (tsubst xt t c')
-              end
-            else
-              begin match t2 with
-                | TVar(wt) ->
-                  if wt = xt
-                  then TermPairSet.add (t1,t) (tsubst xt t c')
-                  else TermPairSet.add (t1,t2) (tsubst xt t c')
-              end
-        end
+          | Bool ->
+          begin match t2 with
+            | Bool -> TermPairSet.add (t1,t2) (tsubst zt t c')
+            | Nat -> TermPairSet.add (t1,t2) (tsubst zt t c')
+            | TVar(yt) ->
+              if yt = zt
+              then TermPairSet.add (t1,t) (tsubst zt t c')
+              else TermPairSet.add (t1,t2) (tsubst zt t c')
+            | Fun(s1,s2) ->
+              TermPairSet.add (t1, Fun((tsubst zt t ))) (tsubst zt t c')
+          | Nat -> raise TODO
+          | TVar(xt) -> raise TODO
+          | Fun(s1,s2) -> raise TODO
 
 let rec occurCheck (xt : tvar) (t : ty) : bool = match t with
   | Bool -> true
@@ -242,15 +241,15 @@ let rec unify (c : constr) : constr =
     match s with
     | TVar(xt) ->
       begin match t with
-        | Bool -> unify (tsubst xt t c')
-        | Nat -> unify (tsubst xt t c')
+        | Bool -> unify (csubst xt t c')
+        | Nat -> unify (csubst xt t c')
         | TVar(yt) ->
           if xt = yt
           then unify c'
-          else unify (tsubst xt t c')
+          else unify (csubst xt t c')
         | Fun(t1,t2) ->
           if (occurCheck xt t)
-          then unify (tsubst xt t c')
+          then unify (csubst xt t c')
           else raise TODO
       end
     | Fun(s1,s2) ->
@@ -259,7 +258,7 @@ let rec unify (c : constr) : constr =
         | Nat -> raise TODO
         | TVar(yt) ->
           if (occurCheck yt s)
-          then unify (tsubst yt s c')
+          then unify (csubst yt s c')
           else raise TODO
         | Fun(t1,t2) -> unify (TermPairSet.union c' (TermPairSet.add (s2,t2) (TermPairSet.singleton (s1,t1))))
       end
@@ -267,14 +266,14 @@ let rec unify (c : constr) : constr =
       begin match t with
         | Bool -> unify c'
         | Nat -> raise TODO
-        | TVar(yt) -> unify (tsubst yt s c')
+        | TVar(yt) -> unify (csubst yt s c')
         | Fun(t1,t2) -> raise TODO
       end
     | Nat ->
       begin match t with
         | Bool -> raise TODO
         | Nat -> unify c'
-        | TVar(yt) -> unify (tsubst yt s c')
+        | TVar(yt) -> unify (csubst yt s c')
         | Fun(t1,t2) -> raise TODO
       end
 
