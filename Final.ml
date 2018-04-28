@@ -242,9 +242,8 @@ let rec unify (c : constr) : constr =
     match s with
     | TVar(xt) ->
       if (occurCheck xt t)
-      then
-          if xt = yt
-          then unify (tsubst xt t c')
+      then unify (tsubst xt t c')
+      else raise TODO
 
     | Fun(s1,s2) -> begin match t with
         | Fun(t1,t2) -> unify (TermPairSet.union c' (TermPairSet.add (s2,t2) (TermPairSet.singleton (s1,t1))))
@@ -256,5 +255,6 @@ let rec unify (c : constr) : constr =
         | TVar(yt) ->
           if (occurCeck yt s)
           then unify (tsubst yt s c')
+          else raise TODO
 
 (* Name: <William H Slocum> *)
