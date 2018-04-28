@@ -201,10 +201,9 @@ let rec tsubst (xt : tvar) (t : ty) (c : constr) : constr =
           if t2 = TVar(xt)
           then TermPairSet.add (t1,t) (tsubst xt t c')
           else
-            TermPairSet.add (t1,t2) (tsubst xt t c') 
+            TermPairSet.add (t1,t2) (tsubst xt t c')
     end
 
-            (*
 let rec unify (c : constr) : constr =
   if TermPairSet.is_empty c
   then c
@@ -216,22 +215,21 @@ let rec unify (c : constr) : constr =
     if s = t then (unify c')
     else
       match s with
-      | Fun(S1,S2) ->
+      | Fun(s1,s2) ->
         begin match t with
-          | Fun(T1,T2) -> TermPairSet.union c' (TermPairSet.union (S1,T1) (S2,T2))
+          | Fun(t1,t2) -> TermPairSet.union c' (TermPairSet.add (s2,t2) (TermPairSet.add (s1,t1) TermPairSet.empty))
           | _ -> raise TODO
         end
 
-      | TVar(X) ->
-        if 0
-        then 0
+      | TVar(xt) ->
+        if true
+        then TermPairSet.add (t,t) (unify (tsubst xt t c'))
         else begin match t with
-          | TVar(Y) ->
-            if 0
-            then 0
-            else FAIL
-          | _ -> FAIL
+          | TVar(yt) ->
+            if true
+            then TermPairSet.add (s,s) (unify (tsubst yt s c'))
+            else raise TODO
+          | _ -> raise TODO
         end
-*)
 
 (* Name: <William H Slocum> *)
