@@ -211,24 +211,29 @@ let rec unify (c : constr) : constr =
     let c' = TermPairSet.remove el c in
     let s = fst el in
     let t = snd el in
-    if s = t then (unify c')
-    else
-      match s with
-      | Fun(s1,s2) ->
-        begin match t with
-          | Fun(t1,t2) -> TermPairSet.union c' (TermPairSet.add (s2,t2) (TermPairSet.add (s1,t1) TermPairSet.empty))
-          | _ -> raise TODO
-        end
-
-      | TVar(xt) ->
-        if true
-        then TermPairSet.add (t,t) (unify (tsubst xt t c'))
-        else begin match t with
-          | TVar(yt) ->
-            if true
-            then TermPairSet.add (s,s) (unify (tsubst yt s c'))
-            else raise TODO
-          | _ -> raise TODO
-        end
+    match s with
+    | TVar(xt) -> begin match t with
+        | TVar(yt) ->
+          if xt = yt
+          then unify c'
+          else
+            TermPairSet.add (TVar(xt),TVar(xt)) (unify (tsubst xt (TVar(yt)) c'))
+        | Bool -> TermPairSet.add (Bool,Bool) (unify (tsubst xt t c'))
+        | Nat -> TermPairSet.add (Nat,Nat) (unify (tsubst xt t c'))
+        | _ -> raise TODO
+      end
+    | Bool -> begin match t with
+        | TVar(yt) -> TermPairSet.add (Bool,Bool) (unify (tsubst yt s c'))
+        | _ -> raise TODO
+      end
+    | Nat -> begin match t with
+        | TVar(yt) -> TermPairSet.add (Nat,Nat) (unify (tsubst yt s c'))
+        | _ -> raise TODO
+      end
+    | Fun(s1,s2) ->
+      begin match t with
+        | Fun(t1,t2) -> unify (TermPairSet.union c' (TermPairSet.add (s2,t2) (TermPairSet.add (s1,t1) (TermPairSet.empty))))
+        | _ -> raise TODO
+      end
 
 (* Name: <William H Slocum> *)
