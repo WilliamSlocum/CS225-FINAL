@@ -214,6 +214,8 @@ let rec tsubst (xt : tvar) (t : ty) (c : constr) : constr =
         end
 
 let rec occurCheck (xt : tvar) (t : ty) : bool = match t with
+  | Bool -> true
+  | Nat -> true
   | TVar(yt) ->
     if xt = yt
     then false
@@ -238,28 +240,21 @@ let rec unify (c : constr) : constr =
     let s = fst el in
     let t = snd el in
     match s with
-    | TVar(xt) -> begin match t with
-        | TVar(yt) ->
+    | TVar(xt) ->
+      if (occurCheck xt t)
+      then
           if xt = yt
-          then unify c'
-          else
-            TermPairSet.add (TVar(xt),TVar(xt)) (unify (tsubst xt (TVar(yt)) c'))
-        | Bool -> TermPairSet.add (Bool,Bool) (unify (tsubst xt t c'))
-        | Nat -> TermPairSet.add (Nat,Nat) (unify (tsubst xt t c'))
-        | _ -> raise TODO
-      end
-    | Bool -> begin match t with
-        | TVar(yt) -> TermPairSet.add (Bool,Bool) (unify (tsubst yt s c'))
-        | _ -> raise TODO
-      end
-    | Nat -> begin match t with
-        | TVar(yt) -> TermPairSet.add (Nat,Nat) (unify (tsubst yt s c'))
-        | _ -> raise TODO
-      end
-    | Fun(s1,s2) ->
-      begin match t with
+          then unify (tsubst xt t c')
+
+    | Fun(s1,s2) -> begin match t with
         | Fun(t1,t2) -> unify (TermPairSet.union c' (TermPairSet.add (s2,t2) (TermPairSet.singleton (s1,t1))))
         | _ -> raise TODO
       end
+
+    | _ ->
+      begin match t with
+        | TVar(yt) ->
+          if (occurCeck yt s)
+          then unify (tsubst yt s c')
 
 (* Name: <William H Slocum> *)
