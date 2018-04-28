@@ -350,11 +350,14 @@ let z = infer (StringMap.empty) (IsZero(x)) (TermPairSet.empty) ;;
 let _ = print_endline ([%show : result] z) ;;
 
 let c : constr = TermPairSet.add (TVar("z"),(Fun(TVar("u"),TVar("w")))) (TermPairSet.singleton (Fun(TVar("x"),TVar("y")),Fun(TVar("y"),TVar("z")))) ;;
-
 let w = unify c (TermPairSet.empty) ;;
 let _ = print_endline ([%show : uresult] w) ;;
 
 let c : constr = TermPairSet.singleton (TVar("x"),Bool)
+let w = unify c (TermPairSet.empty) ;;
+let _ = print_endline ([%show : uresult] w) ;;
+
+let c : constr = TermPairSet.singleton (Fun(Nat,Nat),Fun(TVar("x"),TVar("y")))
 let w = unify c (TermPairSet.empty) ;;
 let _ = print_endline ([%show : uresult] w) ;;
 
