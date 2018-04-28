@@ -213,6 +213,21 @@ let rec tsubst (xt : tvar) (t : ty) (c : constr) : constr =
               end
         end
 
+let rec occurCheck (xt : tvar) (t : ty) : bool = match t with
+  | TVar(yt) ->
+    if xt = yt
+    then false
+    else true
+  | Fun(t1,t2) ->
+    let b1 = occurCheck xt t1 in
+    let b2 = occurCheck xt t2 in
+    if b1
+    then
+      if b2
+      then true
+      else false
+    else false
+
 (* MUST STILL IMPLEMENT X !E FV(T) *)
 let rec unify (c : constr) : constr =
   if TermPairSet.is_empty c
