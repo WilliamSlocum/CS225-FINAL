@@ -192,16 +192,26 @@ let _ = print_endline ([%show : bool] (unify 1))
 let rec tsubst (xt : tvar) (t : ty) (c : constr) : constr =
   if TermPairSet.is_empty c then c else
     let el = TermPairSet.choose c in
-    let c' = TermPairSet.remove el c in begin match el with
+    let c' = TermPairSet.remove el c in match el with
       | (t1,t2) ->
-        if t1 = TVar(xt)
-        then TermPairSet.add (t,t2) (tsubst xt t c')
-        else
-          if t2 = TVar(xt)
-          then TermPairSet.add (t1,t) (tsubst xt t c')
-          else
-            TermPairSet.add (t1,t2) (tsubst xt t c')
-    end
+        begin match t1 with
+          | TVar(zt) ->
+            if zt = xt
+            then
+              begin match t2 with
+                | TVar(wt) ->
+                  if wt = xt
+                  then TermPairSet.add (t,t) (tsubst xt t c')
+                  else TermPairSet.add (t,t2) (tsubst xt t c')
+              end
+            else
+              begin match t2 with
+                | TVar(wt) ->
+                  if wt = xt
+                  then TermPairSet.add (t1,t) (tsubst xt t c')
+                  else TermPairSet.add (t1,t2) (tsubst xt t c')
+              end
+        end
 
 let rec unify (c : constr) : constr =
   if TermPairSet.is_empty c
