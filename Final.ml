@@ -207,10 +207,25 @@ let rec csubst (zt : tvar) (t : ty) (c : constr) : constr =
               then TermPairSet.add (t1,t) (tsubst zt t c')
               else TermPairSet.add (t1,t2) (tsubst zt t c')
             | Fun(s1,s2) ->
-              TermPairSet.add (t1, Fun((tsubst zt t ))) (tsubst zt t c')
+              TermPairSet.add (t1, Fun((tsubst zt t c ))) (tsubst zt t c')
+          end
+        end
+    end
           | Nat -> raise TODO
           | TVar(xt) -> raise TODO
           | Fun(s1,s2) -> raise TODO
+
+let rec tsubst (zt : tvar) (t : ty) (tS : ty) : ty = match t with
+  | Bool -> Bool
+  | Nat -> Nat
+  | TVar(xt) ->
+    if xt = zt
+    then tS
+    else s
+  | Fun(s1,s2) ->
+    let s1' = tsubst zt s1 tS in
+    let s2' = tsubst zt s2 tS in
+    Fun(s1',s2')
 
 let rec occurCheck (xt : tvar) (t : ty) : bool = match t with
   | Bool -> true
