@@ -168,20 +168,6 @@ let z = infer (StringMap.empty) (If(True,False,False)) (TermPairSet.empty) ;;
 match z with | Val(a,b) -> print_endline ([%show : constr] b)
 *)
 
-let w = IsZero(Zero) ;;
-let x = Pred(Succ(Zero)) ;;
-let y = Succ(Zero) ;;
-let z = infer (StringMap.empty) (If(w,x,y)) (TermPairSet.empty) ;;
-let _ = print_endline ([%show : result] z)
-
-let x = IsZero(False) ;;
-let z = infer (StringMap.empty) (If(True,x,x)) (TermPairSet.empty) ;;
-let _ = print_endline ([%show : result] z) ;;
-
-let x = Apply(Lambda("X0", Var("X0")),Succ(Zero))
-let z = infer (StringMap.empty) (IsZero(x)) (TermPairSet.empty) ;;
-let _ = print_endline ([%show : result] z) ;;
-
 (*
 let unify (c : int) : bool =
   if 1 = 1 then true else false ;;
@@ -345,10 +331,51 @@ let rec unify (c : constr) (sb : constr) : uresult =
       end
     end
 
-let x = Apply(Lambda("X0", Var("X0")),Succ(Zero))
-let z = infer (StringMap.empty) (IsZero(x)) (TermPairSet.empty) ;;
-let _ = print_endline ([%show : result] z) ;;
+let _ = print_endline ([%show : string] "---------------------------------") ;;
 
+let e = IsZero(Apply(LambdaA("x",Nat,Var("x")),Zero)) ;;
+let c = infer (StringMap.empty) e (TermPairSet.empty) ;;
+let _ = print_endline ([%show : result] c) ;;
+match c with | Val(t,c) -> let u = unify c (TermPairSet.empty) in print_endline ([%show : uresult] u)
+
+let _ = print_endline ([%show : string] "---------------------------------") ;;
+
+let e = If(IsZero(Zero),Pred(Succ(Zero)),Succ(Zero)) ;;
+let c = infer (StringMap.empty) e (TermPairSet.empty) ;;
+let _ = print_endline ([%show : result] c) ;;
+match c with | Val(t,c) -> let u = unify c (TermPairSet.empty) in print_endline ([%show : uresult] u)
+
+let _ = print_endline ([%show : string] "---------------------------------") ;;
+
+let e = IsZero(Apply(Lambda("X0", Var("X0")),Succ(Zero))) ;;
+let c = infer (StringMap.empty) e (TermPairSet.empty) ;;
+let _ = print_endline ([%show : result] c) ;;
+match c with | Val(t,c) -> let u = unify c (TermPairSet.empty) in print_endline ([%show : uresult] u)
+
+let _ = print_endline ([%show : string] "---------------------------------") ;;
+
+let e = Apply(Lambda("x",Var("x")),Lambda("y", Var("y"))) ;;
+let c = infer (StringMap.empty) e (TermPairSet.empty) ;;
+let _ = print_endline ([%show : result] c) ;;
+match c with | Val(t,c) -> let u = unify c (TermPairSet.empty) in print_endline ([%show : uresult] u)
+
+let _ = print_endline ([%show : string] "---------------------------------") ;;
+
+let e = If(IsZero(Zero),Pred(Succ(Zero)),Succ(Zero)) ;;
+let c = infer (StringMap.empty) e (TermPairSet.empty) ;;
+let _ = print_endline ([%show : result] c) ;;
+match c with | Val(t,c) -> let u = unify c (TermPairSet.empty) in print_endline ([%show : uresult] u)
+
+let _ = print_endline ([%show : string] "---------------------------------") ;;
+
+let e = Lambda("x",Succ(Var("x"))) ;;
+let c = infer (StringMap.empty) e (TermPairSet.empty) ;;
+let _ = print_endline ([%show : result] c) ;;
+match c with | Val(t,c) -> let u = unify c (TermPairSet.empty) in print_endline ([%show : uresult] u)
+
+let _ = print_endline ([%show : string] "---------------------------------") ;;
+
+(*
 let c : constr = TermPairSet.add (TVar("z"),(Fun(TVar("u"),TVar("w")))) (TermPairSet.singleton (Fun(TVar("x"),TVar("y")),Fun(TVar("y"),TVar("z")))) ;;
 let w = unify c (TermPairSet.empty) ;;
 let _ = print_endline ([%show : uresult] w) ;;
@@ -360,5 +387,6 @@ let _ = print_endline ([%show : uresult] w) ;;
 let c : constr = TermPairSet.singleton (Fun(Nat,Nat),Fun(TVar("x"),TVar("y")))
 let w = unify c (TermPairSet.empty) ;;
 let _ = print_endline ([%show : uresult] w) ;;
+*)
 
 (* Name: <William H Slocum> *)
