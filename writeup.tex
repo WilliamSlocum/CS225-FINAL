@@ -1,0 +1,176 @@
+\documentclass{article}
+
+\usepackage{mathtools}
+
+\newtagform{nowidth}{\llap\bgroup(}{)\egroup}
+
+\title{CS225 Spring 2018 -- Final Project Write-Up}
+\author{
+  William H Slocum \\ \small{\texttt{git:@WilliamSlocum}}
+}
+
+\begin{document}
+\maketitle
+
+\section*{Project: Type Reconstruction}
+
+\paragraph{Introduction}
+In class, we studied a Type Checker and Well-Typed Relation that calculated the Types of Expressions. To do this, we required the Types of Variables to be explicitly annotated. Take the Well-Typed Relation for Lambda Terms...
+
+\begin{equation*}
+    \frac{\Gamma[x \mapsto \tau_{1}] \vdash t : \tau_{2}}
+    {\Gamma \vdash \lambda(x.\tau_{1}).t : \tau_{1} \to \tau_{2}}
+\end{equation*}
+
+Without explicitly stating the Type of x, our Type Checker is unable to calculate the Type of any Expression that includes Lambda Terms. That being said, humans often don't require these explicit annotations in order to understand the Type of an Expression. We use fairly simple logic and reasoning to make these determinations. If we were to transcribe our thinking as we performed this reasoning, we would see that it resembles an executable procedure. There's no reason we cannot write a program that performs this same sort of reasoning. 
+
+\paragraph{Constraint-Based Typing}
+Instead of calculating the Type of an Expression, we will calculate a Constraint Set that must be satisfied in order for the Expression to be Well-Typed. A Constraint Set $C$ is a set of equations $\{S_{i} = T_{i}\}$. We say a substitution $\sigma$ unifies an equation $S = T$ if the substitution instances of $\sigma S$ and $\sigma T$ are identical. \\
+
+We define the Constrain Typing Relation with the rule listed below. We read $\Gamma \vdash t : T |_{\emptyset} \{\}$ as "term t has the Type T under assumptions $\Gamma$ whenever Constraints C are satisfied". The $X$ subscripts are used to track the Type Variables introduced in each subderivation and ensure they are all distinct.
+
+\usetagform{nowidth}
+
+\begin{equation}
+    \frac{x : T \in \Gamma}{\Gamma \vdash x : T |_{\emptyset} \{\}}
+    \tag{CT-VAR}
+\end{equation}
+
+\begin{equation}
+    \frac{X \notin X  \Gamma,x:X \vdash t_{1}:T |_{X} C}
+    {\Gamma \vdash \lambda x.t_{1} : X \to T |_{X \cup \{X\}} C}
+    \tag{CT-ABSINF}
+\end{equation}
+
+\begin{equation}
+    \frac{\Gamma, x : T_{1} \vdash t_{2} : T_{2} |_{x} C}
+    {\Gamma \vdash \lambda(x : T_{1}).t_{2} : T_{1} \to T_{2} |_{x} C}
+    \tag{CT-ABS}
+\end{equation}
+
+\begin{equation}
+    \frac{\Gamma \vdash t_{1} : T_{1} |_{X_{1}} C_{1} \Gamma \vdash t_{1} : T_{1} |_{X_{1}} C_{1} C' = C_{1} \cup C_{2} \cup \{ T_{1} = T_{2} \to X\}}
+    {\Gamma, t_{1} t_{2} : X |_{X_{1} \cup X_{2} \cup X} C }
+    \tag{CT-APP}
+\end{equation}
+
+\begin{equation}
+    \Gamma \vdash 0 : Nat |_{\emptyset} \{\}
+    \tag{CT-ZERO}
+\end{equation}
+
+\begin{equation}
+    \frac{\Gamma \vdash t_{1} : T |_{X} C C' = C \cup \{T = Nat\}}
+    {\Gamma \vdash succ t_{1} : Nat |_{X} C'}
+    \tag{CT-SUCC}
+\end{equation}
+
+\begin{equation}
+    \frac{\Gamma \vdash t_{1} : T |_{X} C C' = C \cup \{T = Nat\}}
+    {\Gamma \vdash pred t_{1} : Nat |_{X} C'}
+    \tag{CT-PRED}
+\end{equation}
+
+\begin{equation}
+    \frac{\Gamma \vdash t_{1} : T |_{X} C \ C' = C \cup \{T = Nat\}}
+    {\Gamma \vdash iszero t_{1} : Nat |_{X} C'}
+    \tag{CT-ISZERO}
+\end{equation}
+
+\begin{equation}
+    \Gamma \vdash true : Bool |_{\emptyset} \{\}
+    \tag{CT-TRUE}
+\end{equation}
+
+\begin{equation}
+    \Gamma \vdash false : Bool |_{\emptyset} \{\}
+    \tag{CT-FALSE}
+\end{equation}
+
+\begin{equation}
+    \frac{\Gamma \vdash t_{1} |_{X_{1}} C_{1} \Gamma \vdash t_{2} |_{X_{2}} C_{2} \Gamma \vdash t_{3} |_{X_{3}} C_{3}
+    C' = C_{1} \cup C_{2} \cup C_{3} \cup \{T_{1} = Bool, T_{2} = T_{3}}
+    {\Gamma \vdash if t_{1} then t_{2} else t_{3} : T_{2} |_{X_{1} \cup X_{2} \cup X_{3}} C'}
+    \tag{CT-IF}
+\end{equation}
+
+\paragraph{Base Language} 
+We will implement this Constraint Based Typing on the following Language...
+
+\begin{equation*}
+  \begin{array}{rcl}
+    \tau \Coloneqq & \text{Bool} \mid \text{Nat} \mid \tau \to \tau \mid X \\
+  \end{array}
+\end{equation*}
+
+\begin{equation*}
+  \begin{array}{rcl}
+    e & \Coloneqq & x \mid \text{True} \mid \text{False} \mid \text{if} \ (e) \ \{e\} \ \{e\} \\
+      & \mid      & \text{Zero} \mid \text{IsZero}(e) \mid \text{Pred}(e) \mid \text{Succ}(e) \\
+      & \mid      & \lambda x . \ e \mid \lambda (x.\tau) \ e \mid e \ e
+  \end{array}
+\end{equation*}
+
+CT-ABSINF is the Constraint Typing Rule for Lambda Terms without an explicit annotated Variable. Normally, this would cause a problem. But since we are simply calculating Constraint Sets, we do not need to know this Variable's Type. We say the Variable has the Type of some arbitrary Type Variable, in this case X. As we will see later, it is essential that whenever we create an arbitrary Type Variable such as this, it must be distinct from all others.
+
+\paragraph{Set Unification}
+
+Calculating the Constraint Set for an Expression is only solving half of the problem. We still need to find a Solution to the Constraint Set. That is, we need to calculate a set of Substitutions that, when applied to the Constraint Set C, Unifies every equation in C. The Types and Programming Languages textbook provides the following pseudo-code for an algorithm that performs such a task.
+
+\begin{equation*}
+\begin{array}{l}
+    unify(C) = \text{if} \ C = \emptyset \ \text{then} \ [ \ ] \\
+    \indent \text{else let} \ {S = T} \cup C' = C \ in \\
+    \indent \text{if} \ S = T \\
+    \indent\indent \text{then} \ unify(C') \\
+    \indent \text{else if} \ S = X \ \text{and X} \notin FV(T) \\
+    \indent\indent \text{then} \ unify([X \mapsto T]C') \circ [X \mapsto T] \\
+    \indent \text{else if} \ T = X \text{and X} \notin FV(T) \\
+    \indent\indent \text{then} \ unify([X \mapsto S]C') \circ [X \mapsto S] \\
+    \indent \text{else if} \ S = S_{1} \to S_{2} \ \text{and} \ T = T_{1} \to T_{2} \\
+    \indent\indent \text{then} \ unify(C' \cup {S_{1} = T_{1},S_{2} = T_{2}}) \\
+    \indent \text{else} \\
+    \indent\indent fail
+\end{array}
+\end{equation*}
+
+\paragraph{Implementation}
+We will now discuss the implementation of these concepts in Final.ml. \\
+
+We have implemented Constraint Sets using the Module TermPairSet. TermPairSet is a Set of elements of the form (Type,Type). We calculate Constraint Sets using the recursive function $infer$, which accepts a Type Environment, an Expression, and a Constraint Set as arguments. When we initially call $infer$, we do so with an empty Constraint Set. The Return Type of $infer$ is $result$, which is detailed below...
+
+\begin{equation}
+    \begin{array}{l}
+    \text{type} \ result = \\
+    \indent \mid \text{Val of} \ ty \ * \ ccset \\
+    \indent \mid \text{Stuck}
+    \end{array}
+\end{equation}
+
+Therefore, when $infer$ successfully terminates, it returns both a Type and a Constraint Set. When the given Expression turns out to be Well-Typed, this Type is indeed the Type of the Expression. When the given Expression is not Well-Typed, this Type is not meaningful. \\
+
+As seen in the Constraint Typing Rules, we must assure that each time we create a new Type Variable, it is distinct from all other. Thus, we must write a Helper Function to create unique Type Variables for $infer$. We accomplish this with $uniqueVar$, which increments the value of Reference Cell and uses that value to create a String. We use this string to build unique Type Variables. \\
+
+We calculate Solutions to Constraint Sets using the $unify$ function, which accepts a Constraint Sets and a Solution Set as arguments. Solution Sets are also implemented using the TermPairSet Module, and thus behave just the same as Constraint Sets. The Solution Set is always initially empty and is used to store the solution to the given Constraint Set. Similarly to $infer$, the Return Type of $unify$ is $uresult$, which is detailed below...
+
+\begin{equation}
+    \begin{array}{l}
+    \text{type} \ uresult = \\
+    \indent \mid \text{Val of} \ cset \ * \ sset \\
+    \indent \mid \text{Stuck}
+    \end{array}
+\end{equation}
+
+When the given Constraint Set is unifiable, $unify$ returns a Constraint Set and a Solution Set. The Constraint Set will be empty, while the Solution Set will contain the Substitutions in the Solution. When the given Constraint is not unifiable, you have determined that the initial Expression is not Well-Typed and $unify$ returns Stuck. \\
+
+$unify$ requires several Helper Functions of its own. First, we must implement the portion of the pseudo-code written as $\text{X} \notin FV(T)$. This is known as an Occur Check. It prevents the algorithm from generating a solution involving a cyclic substitution such as $\text{X} \mapsto \text{X} \to \text{X}$. Since our Language only includes Finite Types, this shouldn't be allowed. \\
+
+We must also implement Constraint Set Substitution, which we call $csubst$. This proves to be non-trivial, as we must examine each side of each equation in the Constraint Set. Since by definition, a given Type only has four basic forms, it is easiest to accomplish this by writing cases for each of the sixteen combinations an element of a Constraint Set can have. When we identify the correct form of a given element, we must then use a second Helper Function to perform substitution on the the Types themselves. Thankfully this Helper Function, which we call $tsubst$, is much more simple. \\
+
+\paragraph{Testing}
+
+In Test.ml, we perform several Test Cases on $infer$ and $unify$. For Test Case, we output the Expression, the Constraint Set, the Solution Set, and the Type of the Expression. \\
+
+Often the calculated Type of an Expression is or contains a Type Variable. Sometimes, due to the nature of the Expression, we cannot be any more specific than this. Other times though, we notice that Type Variable within this Type are included in the Solution Set. Therefore, we can be more precise in our answer. We use the $solveType$ function to perform substitution on the Type, which requires to use of the Helper Function $tsubst$.
+
+\end{document}

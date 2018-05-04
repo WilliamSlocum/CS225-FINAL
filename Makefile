@@ -18,3 +18,13 @@ _build/%.cmo: %.ml
 	@ $(OCAMLBUILD) $@.byte
 	@ ./$@.byte
 	@ rm $@.byte
+
+writeup.pdf: writeup.tex
+	mkdir -p out
+	pdflatex --output-directory=out writeup.tex
+	cp out/writeup.pdf ./writeup.pdf
+
+.PHONY: clean
+clean:
+	rm -rf out
+	rm -f writeup.pdf
