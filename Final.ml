@@ -152,7 +152,7 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
       | _ -> Stuck
     end
 
-(* csubst Helper, Substitution Function For Types *)
+(* Helper Function, Substitution For Types *)
 let rec tsubst (zt : tvar) (t : ty) (tS : ty) : ty = match t with
   | Bool -> Bool
   | Nat -> Nat

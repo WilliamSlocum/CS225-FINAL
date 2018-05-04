@@ -28,11 +28,14 @@ let rec solvetype (c : constr) (t : ty) : ty =
     end
 
 let tests : (exp) list =
-  [If(Zero,True,False);
-   If(IsZero(Zero),Pred(Zero),Succ(Zero));
-   If(True,Lambda("x",Var("x")),Lambda("y",Var("y")));
-   Succ(Lambda("x",Succ(Var("x"))));
+  [If(True,Pred(Zero),Zero);
+   If(Zero,True,False);
+   If(False,Lambda("x",Var("x")),Lambda("y",Var("y")));
+   If(Apply(Lambda("x",Var("x")),True),Zero,Zero);
+   Succ(If(False,Zero,Succ(Zero)));
+   Succ(Apply(Lambda("x",Succ(Var("x"))),Zero));
    Pred(Lambda("x",Succ(Var("x"))));
+   IsZero(Apply(Lambda("x", Var("x")),Succ(Zero)));
    IsZero(Apply(Lambda("x", Var("x")),Succ(Zero)));
    Lambda("x",Succ(Var("x")));
    Lambda("x",If(Var("x"),True,Var("x")));
@@ -42,6 +45,7 @@ let tests : (exp) list =
    LambdaA("x",Fun(Nat,Bool),Apply(Var("x"),Zero));
    LambdaA("x",Bool,Lambda("y",If(Var("x"),Var("y"),Zero)));
    LambdaA("x",Bool,Lambda("y",If(Var("y"),Var("x"),Zero)));
+   Apply(Lambda("x", Var("x")),True);
    Apply(Lambda("x",Var("x")),Lambda("y", Var("y")));
    Apply(Apply(Lambda("w",Var("w")),Lambda("x",Var("x"))),Apply(Lambda("y",Var("y")),Lambda("z",Var("z"))));
   ] ;;
@@ -78,7 +82,8 @@ List.iter (fun (e) ->
       print_endline "CONSTRAINT SET ERROR" ;
 
 
-  ) tests
+  ) tests ;
 
+print_endline " " ;
 
 (* Name: <William H Slocum> *)
