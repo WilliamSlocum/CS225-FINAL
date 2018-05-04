@@ -69,7 +69,7 @@ List.iter (fun (e) ->
           print_endline " " ; print_string "SOLUTION" ; print_endline " " ;
           print_endline ([%show : constr] c2) ;
           print_endline " " ; print_string "TYPE" ; print_endline " " ;
-          let t' = solvetype c t in
+          let t' = solvetype c2 t in
           print_endline ([%show : ty] t')
         | _ ->
           print_endline " " ; print_string "SOLUTION" ; print_endline " " ;
