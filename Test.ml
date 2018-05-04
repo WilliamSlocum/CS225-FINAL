@@ -1,6 +1,12 @@
+(* Name: <William H Slocum> *)
+(* Course: UVM CS 225 Spring 2018 - Darais *)
+(* Final Project *)
+
 open Util
 open StringSetMap
 open Final
+
+(* Testing Suite for Final.ml *)
 
 (* ====================================================================== *)
 
@@ -22,9 +28,9 @@ match v with
   begin match u with
     | Val(c1,c2) ->
       print_endline ([%show : constr] c2)
-    | _ -> print_string "STUCK"
+    | _ -> print_endline "STUCK"
   end
-| _ -> print_string "STUCK"
+| _ -> print_endline "STUCK"
 
 (* ====================================================================== *)
 
@@ -46,9 +52,9 @@ match v with
   begin match u with
     | Val(c1,c2) ->
       print_endline ([%show : constr] c2)
-    | _ -> print_string "STUCK"
+    | _ -> print_endline "STUCK"
   end
-| _ -> print_string "STUCK"
+| _ -> print_endline "STUCK"
 
 (* ====================================================================== *)
 
@@ -70,9 +76,9 @@ match v with
   begin match u with
     | Val(c1,c2) ->
       print_endline ([%show : constr] c2)
-    | _ -> print_string "STUCK"
+    | _ -> print_endline "STUCK"
   end
-| _ -> print_string "STUCK"
+| _ -> print_endline "STUCK"
 
 (* ====================================================================== *)
 
@@ -94,9 +100,9 @@ match v with
   begin match u with
     | Val(c1,c2) ->
       print_endline ([%show : constr] c2)
-    | _ -> print_string "STUCK"
+    | _ -> print_endline "STUCK"
   end
-| _ -> print_string "STUCK"
+| _ -> print_endline "STUCK"
 
 (* ====================================================================== *)
 
@@ -118,9 +124,9 @@ match v with
   begin match u with
     | Val(c1,c2) ->
       print_endline ([%show : constr] c2)
-    | _ -> print_string "STUCK"
+    | _ -> print_endline "STUCK"
   end
-| _ -> print_string "STUCK"
+| _ -> print_endline "STUCK"
 
 (* ====================================================================== *)
 
@@ -142,9 +148,9 @@ match v with
   begin match u with
     | Val(c1,c2) ->
       print_endline ([%show : constr] c2)
-    | _ -> print_string "STUCK"
+    | _ -> print_endline "STUCK"
   end
-| _ -> print_string "STUCK"
+| _ -> print_endline "STUCK"
 
 (* ====================================================================== *)
 
@@ -166,9 +172,9 @@ match v with
   begin match u with
     | Val(c1,c2) ->
       print_endline ([%show : constr] c2)
-    | _ -> print_string "STUCK"
+    | _ -> print_endline "STUCK"
   end
-| _ -> print_string "STUCK"
+| _ -> print_endline "STUCK"
 
 (* ====================================================================== *)
 
@@ -190,9 +196,9 @@ match v with
   begin match u with
     | Val(c1,c2) ->
       print_endline ([%show : constr] c2)
-    | _ -> print_string "STUCK"
+    | _ -> print_endline "STUCK"
   end
-| _ -> print_string "STUCK"
+| _ -> print_endline "STUCK"
 
 (* ====================================================================== *)
 
@@ -214,9 +220,9 @@ match v with
   begin match u with
     | Val(c1,c2) ->
       print_endline ([%show : constr] c2)
-    | _ -> print_string "STUCK"
+    | _ -> print_endline "STUCK"
   end
-| _ -> print_string "STUCK"
+| _ -> print_endline "STUCK"
 
 (* ====================================================================== *)
 
@@ -238,9 +244,9 @@ match v with
   begin match u with
     | Val(c1,c2) ->
       print_endline ([%show : constr] c2)
-    | _ -> print_string "STUCK"
+    | _ -> print_endline "STUCK"
   end
-| _ -> print_string "STUCK"
+| _ -> print_endline "STUCK"
 
 (* ====================================================================== *)
 
@@ -262,9 +268,9 @@ match v with
   begin match u with
     | Val(c1,c2) ->
       print_endline ([%show : constr] c2)
-    | _ -> print_string "STUCK"
+    | _ -> print_endline "STUCK"
   end
-| _ -> print_string "STUCK"
+| _ -> print_endline "STUCK"
 
 (* ====================================================================== *)
 
@@ -286,9 +292,9 @@ match v with
   begin match u with
     | Val(c1,c2) ->
       print_endline ([%show : constr] c2)
-    | _ -> print_string "STUCK"
+    | _ -> print_endline "STUCK"
   end
-| _ -> print_string "STUCK"
+| _ -> print_endline "STUCK"
 
 (* ====================================================================== *)
 
@@ -310,11 +316,12 @@ match v with
   begin match u with
     | Val(c1,c2) ->
       print_endline ([%show : constr] c2)
-    | _ -> print_string "STUCK"
+    | _ -> print_endline "STUCK"
   end
-| _ -> print_string "STUCK"
+| _ -> print_endline "STUCK"
 
 (* ====================================================================== *)
 
-let _ = print_string " " ;;
-print_endline " " ;; print_string "--" ;; print_endline " " ;;
+let _ = print_endline " " ;;
+
+(* Name: <William H Slocum> *)

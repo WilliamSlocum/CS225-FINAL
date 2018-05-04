@@ -5,12 +5,11 @@
 open Util
 open StringSetMap
 
-(* Syntax For Types *)
-
 (* X ∈ tvar ≈ 𝕊 *)
 type tvar = string
 [@@deriving show {with_path = false}]
 
+(* Syntax For Types *)
 type ty =
   | Bool
   | Nat
@@ -18,12 +17,11 @@ type ty =
   | TVar of tvar
 [@@deriving show {with_path = false}]
 
-(* Syntax for expressions *)
-
 (* x ∈ var ≈ 𝕊 *)
 type var = string
 [@@deriving show {with_path = false}]
 
+(* Syntax for Expressions *)
 type exp =
   | True
   | False
@@ -42,8 +40,7 @@ type exp =
 type tenv = ty string_map
 [@@deriving show {with_path = false}]
 
-(* C ≔ {term = term} *)
-
+(* ppx_deriving to Help Print Constraint Sets *)
 let pp_pair
  (pp_a : Format.formatter -> 'a -> unit)
  (pp_b : Format.formatter -> 'b -> unit)
@@ -57,6 +54,7 @@ let pp_pair
    pp_a fmt b ;
    Format.fprintf fmt "@,)@]"
 
+(* Create a Module To Be Implemented As A Constraint Set *)
 module TermPairSet = struct
   include Set.Make(struct type t = ty * ty let compare = Pervasives.compare end)
   let pp (fmt : Format.formatter) (ss : t) : unit =
@@ -76,24 +74,23 @@ let uniqueVar() : string =
   let _ = n := !n + 1 in
   "X" ^ string_of_int !n ;;
 
+(* Define Return Type for Infer Function *)
 type result =
   | Val of ty * constr
   | Stuck
 [@@deriving show {with_path = false}]
 
+(* Infer Function *)
 let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
-
   | Var(x) ->
     let t = StringMap.find x g in
     Val(t, c)
-
   | LambdaA(x,t1,e') ->
     let g' = StringMap.add x t1 g in
     let v = infer g' e' c in begin match v with
       | Val(t2, c) -> Val(Fun(t1,t2),c)
       | _ -> Stuck
     end
-
   | Lambda(x,e') ->
     let xt = TVar(uniqueVar()) in
     let g' = StringMap.add x xt g in
@@ -101,7 +98,6 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
       | Val(t, c') -> Val(Fun(xt,t),c')
       | _ -> Stuck
     end
-
   | Apply(e1,e2) ->
     let xt = TVar(uniqueVar()) in
     let v1 = infer g e1 c in
@@ -115,9 +111,7 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
           end
         | _ -> Stuck
       end
-
   | Zero -> Val(Nat, c)
-
   | Succ(e') ->
     let r = infer g e' c in begin match r with
       | Val(t, c1) ->
@@ -125,7 +119,6 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
         Val(Nat, c')
       | _ -> Stuck
     end
-
   | Pred(e') ->
     let r = infer g e' c in begin match r with
       | Val(t, c1) ->
@@ -133,7 +126,6 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
         Val(Nat, c')
       | _ -> Stuck
     end
-
   | IsZero(e') ->
     let r = infer g e' c in begin match r with
       | Val(t, c1) ->
@@ -141,11 +133,8 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
         Val(Bool, c')
       | _ -> Stuck
     end
-
   | True -> Val(Bool, c)
-
   | False -> Val(Bool, c)
-
   | If(e1,e2,e3) ->
   let v1 = infer g e1 c in
   let v2 = infer g e2 c in
@@ -163,6 +152,7 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
       | _ -> Stuck
     end
 
+(* csubst Helper, Substitution Function For Types *)
 let rec tsubst (zt : tvar) (t : ty) (tS : ty) : ty = match t with
   | Bool -> Bool
   | Nat -> Nat
@@ -175,6 +165,7 @@ let rec tsubst (zt : tvar) (t : ty) (tS : ty) : ty = match t with
     let s2' = tsubst zt s2 tS in
     Fun(s1',s2')
 
+(* Unify Helper, Substitution Function For Constraint Sets *)
 let rec csubst (zt : tvar) (t : ty) (c : constr) : constr =
   if TermPairSet.is_empty c
   then c
@@ -195,7 +186,6 @@ let rec csubst (zt : tvar) (t : ty) (c : constr) : constr =
             | Fun(s1,s2) ->
               TermPairSet.add (t1, Fun((tsubst zt s1 t ),(tsubst zt s2 t))) (csubst zt t c')
           end
-
           | Nat ->
           begin match t2 with
             | Bool -> TermPairSet.add (t1,t2) (csubst zt t c')
@@ -207,7 +197,6 @@ let rec csubst (zt : tvar) (t : ty) (c : constr) : constr =
             | Fun(s1,s2) ->
               TermPairSet.add (t1, Fun((tsubst zt s1 t ),(tsubst zt s2 t))) (csubst zt t c')
           end
-
           | TVar(xt) ->
             begin match t2 with
               | Bool ->
@@ -233,7 +222,6 @@ let rec csubst (zt : tvar) (t : ty) (c : constr) : constr =
                 then TermPairSet.add (t, Fun((tsubst zt s1 t ),(tsubst zt s2 t))) (csubst zt t c')
                 else TermPairSet.add (t1, Fun((tsubst zt s1 t ),(tsubst zt s2 t))) (csubst zt t c')
             end
-
           | Fun(r1,r2) ->
             begin match t2 with
               | Bool -> TermPairSet.add (Fun((tsubst zt r1 t ),(tsubst zt r2 t)),t2) (csubst zt t c')
@@ -248,6 +236,7 @@ let rec csubst (zt : tvar) (t : ty) (c : constr) : constr =
         end
     end
 
+(* Unify Helper Function to Avoid Infinite Substitutions *)
 let rec occurCheck (xt : tvar) (t : ty) : bool = match t with
   | Bool -> true
   | Nat -> true
@@ -265,12 +254,13 @@ let rec occurCheck (xt : tvar) (t : ty) : bool = match t with
       else false
     else false
 
+(* Define Return Type for Unify Function *)
 type uresult =
   | Val of constr * constr
   | Stuck
 [@@deriving show {with_path = false}]
 
-(* MUST STILL IMPLEMENT X !E FV(T) *)
+(* Unify Function *)
 let rec unify (c : constr) (sb : constr) : uresult =
   if TermPairSet.is_empty c
   then Val(c,sb)
