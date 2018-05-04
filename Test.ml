@@ -11,19 +11,19 @@ open Final
 (* ====================================================================== *)
 
 (* Function to Perform Substitution on a Type Given a Unification Solution *)
-let rec solvetype (c : constr) (t : ty) : ty =
-  if TermPairSet.is_empty c
+let rec solveType (s : sset) (t : ty) : ty =
+  if TermPairSet.is_empty s
   then t
   else
-    let el = TermPairSet.choose c in
-    let c' = TermPairSet.remove el c in
+    let el = TermPairSet.choose s in
+    let s' = TermPairSet.remove el s in
     begin match el with
       | (xT,tS) ->
         begin match xT with
           | TVar(xt) ->
             let t' = tsubst xt t tS in
-            solvetype c' t'
-          | _ -> solvetype c' t
+            solveType s' t'
+          | _ -> solveType s' t
         end
     end
 
@@ -62,14 +62,14 @@ List.iter (fun (e) ->
     match v with
     | Val(t,c) ->
       print_endline " " ; print_string "CONSTRAINT SET" ; print_endline " " ;
-      print_endline ([%show : constr] c);
+      print_endline ([%show : cset] c);
       let u = unify c (TermPairSet.empty) in
       begin match u with
-        | Val(c1,c2) ->
+        | Val(c,s) ->
           print_endline " " ; print_string "SOLUTION" ; print_endline " " ;
-          print_endline ([%show : constr] c2) ;
+          print_endline ([%show : sset] s) ;
           print_endline " " ; print_string "TYPE" ; print_endline " " ;
-          let t' = solvetype c2 t in
+          let t' = solveType s t in
           print_endline ([%show : ty] t')
         | _ ->
           print_endline " " ; print_string "SOLUTION" ; print_endline " " ;

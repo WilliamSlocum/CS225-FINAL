@@ -54,7 +54,7 @@ let pp_pair
    pp_a fmt b ;
    Format.fprintf fmt "@,)@]"
 
-(* Create a Module To Be Implemented As A Constraint Set *)
+(* Create a Module To Be Implemented as s Constraint Set and a Solution Set *)
 module TermPairSet = struct
   include Set.Make(struct type t = ty * ty let compare = Pervasives.compare end)
   let pp (fmt : Format.formatter) (ss : t) : unit =
@@ -64,7 +64,12 @@ end
 type term_pair_set = TermPairSet.t
 [@@deriving show {with_path=false}]
 
-type constr = term_pair_set
+(* Constraint Set *)
+type cset = term_pair_set
+[@@deriving show {with_path = false}]
+
+(* Solution Set *)
+type sset = term_pair_set
 [@@deriving show {with_path = false}]
 
 (* Create a Function that Creates Unique Type Variables *)
@@ -76,12 +81,12 @@ let uniqueVar() : string =
 
 (* Define Return Type for Infer Function *)
 type result =
-  | Val of ty * constr
+  | Val of ty * cset
   | Stuck
 [@@deriving show {with_path = false}]
 
 (* Infer Function *)
-let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
+let rec infer (g : tenv) (e : exp) (c : cset) : result = match e with
   | Var(x) ->
     let t = StringMap.find x g in
     Val(t, c)
@@ -166,7 +171,7 @@ let rec tsubst (zt : tvar) (t : ty) (tS : ty) : ty = match t with
     Fun(s1',s2')
 
 (* Unify Helper, Substitution Function For Constraint Sets *)
-let rec csubst (zt : tvar) (t : ty) (c : constr) : constr =
+let rec csubst (zt : tvar) (t : ty) (c : cset) : cset =
   if TermPairSet.is_empty c
   then c
   else
@@ -256,12 +261,12 @@ let rec occurCheck (xt : tvar) (t : ty) : bool = match t with
 
 (* Define Return Type for Unify Function *)
 type uresult =
-  | Val of constr * constr
+  | Val of cset * sset
   | Stuck
 [@@deriving show {with_path = false}]
 
 (* Unify Function *)
-let rec unify (c : constr) (sb : constr) : uresult =
+let rec unify (c : cset) (sb : sset) : uresult =
   if TermPairSet.is_empty c
   then Val(c,sb)
   else
