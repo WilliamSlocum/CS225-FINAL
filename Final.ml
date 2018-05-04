@@ -163,18 +163,6 @@ let rec infer (g : tenv) (e : exp) (c : constr) : result = match e with
       | _ -> Stuck
     end
 
-(*
-let z = infer (StringMap.empty) (If(True,False,False)) (TermPairSet.empty) ;;
-match z with | Val(a,b) -> print_endline ([%show : constr] b)
-*)
-
-(*
-let unify (c : int) : bool =
-  if 1 = 1 then true else false ;;
-
-let _ = print_endline ([%show : bool] (unify 1))
-*)
-
 let rec tsubst (zt : tvar) (t : ty) (tS : ty) : ty = match t with
   | Bool -> Bool
   | Nat -> Nat
@@ -330,19 +318,5 @@ let rec unify (c : constr) (sb : constr) : uresult =
         | Fun(t1,t2) -> unify (TermPairSet.union c' (TermPairSet.add (s2,t2) (TermPairSet.singleton (s1,t1)))) sb
       end
     end
-
-(*
-let c : constr = TermPairSet.add (TVar("z"),(Fun(TVar("u"),TVar("w")))) (TermPairSet.singleton (Fun(TVar("x"),TVar("y")),Fun(TVar("y"),TVar("z")))) ;;
-let w = unify c (TermPairSet.empty) ;;
-let _ = print_endline ([%show : uresult] w) ;;
-
-let c : constr = TermPairSet.singleton (TVar("x"),Bool)
-let w = unify c (TermPairSet.empty) ;;
-let _ = print_endline ([%show : uresult] w) ;;
-
-let c : constr = TermPairSet.singleton (Fun(Nat,Nat),Fun(TVar("x"),TVar("y")))
-let w = unify c (TermPairSet.empty) ;;
-let _ = print_endline ([%show : uresult] w) ;;
-*)
 
 (* Name: <William H Slocum> *)
