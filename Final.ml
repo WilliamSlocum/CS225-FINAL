@@ -158,7 +158,7 @@ let rec infer (g : tenv) (e : exp) (c : cset) : iResult = match e with
     end
 
 (* Helper Function, Substitution For Types *)
-let rec tsubst (zt : tvar) (t : ty) (tS : ty) : ty = match t with
+let rec tSubst (zt : tvar) (t : ty) (tS : ty) : ty = match t with
   | Bool -> Bool
   | Nat -> Nat
   | TVar(xt) ->
@@ -166,12 +166,12 @@ let rec tsubst (zt : tvar) (t : ty) (tS : ty) : ty = match t with
     then tS
     else t
   | Fun(s1,s2) ->
-    let s1' = tsubst zt s1 tS in
-    let s2' = tsubst zt s2 tS in
+    let s1' = tSubst zt s1 tS in
+    let s2' = tSubst zt s2 tS in
     Fun(s1',s2')
 
 (* Unify Helper, Substitution Function For Constraint Sets *)
-let rec csubst (zt : tvar) (t : ty) (c : cset) : cset =
+let rec cSubst (zt : tvar) (t : ty) (c : cset) : cset =
   if TermPairSet.is_empty c
   then c
   else
@@ -182,61 +182,61 @@ let rec csubst (zt : tvar) (t : ty) (c : cset) : cset =
         begin match t1 with
           | Bool ->
           begin match t2 with
-            | Bool -> TermPairSet.add (t1,t2) (csubst zt t c')
-            | Nat -> TermPairSet.add (t1,t2) (csubst zt t c')
+            | Bool -> TermPairSet.add (t1,t2) (cSubst zt t c')
+            | Nat -> TermPairSet.add (t1,t2) (cSubst zt t c')
             | TVar(yt) ->
               if yt = zt
-              then TermPairSet.add (t1,t) (csubst zt t c')
-              else TermPairSet.add (t1,t2) (csubst zt t c')
+              then TermPairSet.add (t1,t) (cSubst zt t c')
+              else TermPairSet.add (t1,t2) (cSubst zt t c')
             | Fun(s1,s2) ->
-              TermPairSet.add (t1, Fun((tsubst zt s1 t ),(tsubst zt s2 t))) (csubst zt t c')
+              TermPairSet.add (t1, Fun((tSubst zt s1 t ),(tSubst zt s2 t))) (cSubst zt t c')
           end
           | Nat ->
           begin match t2 with
-            | Bool -> TermPairSet.add (t1,t2) (csubst zt t c')
-            | Nat -> TermPairSet.add (t1,t2) (csubst zt t c')
+            | Bool -> TermPairSet.add (t1,t2) (cSubst zt t c')
+            | Nat -> TermPairSet.add (t1,t2) (cSubst zt t c')
             | TVar(yt) ->
               if yt = zt
-              then TermPairSet.add (t1,t) (csubst zt t c')
-              else TermPairSet.add (t1,t2) (csubst zt t c')
+              then TermPairSet.add (t1,t) (cSubst zt t c')
+              else TermPairSet.add (t1,t2) (cSubst zt t c')
             | Fun(s1,s2) ->
-              TermPairSet.add (t1, Fun((tsubst zt s1 t ),(tsubst zt s2 t))) (csubst zt t c')
+              TermPairSet.add (t1, Fun((tSubst zt s1 t ),(tSubst zt s2 t))) (cSubst zt t c')
           end
           | TVar(xt) ->
             begin match t2 with
               | Bool ->
                 if xt = zt
-                then TermPairSet.add (t,t2) (csubst zt t c')
-                else TermPairSet.add (t1,t2) (csubst zt t c')
+                then TermPairSet.add (t,t2) (cSubst zt t c')
+                else TermPairSet.add (t1,t2) (cSubst zt t c')
               | Nat ->
                 if xt = zt
-                then TermPairSet.add (t,t2) (csubst zt t c')
-                else TermPairSet.add (t1,t2) (csubst zt t c')
+                then TermPairSet.add (t,t2) (cSubst zt t c')
+                else TermPairSet.add (t1,t2) (cSubst zt t c')
               | TVar(yt) ->
                 if xt = zt
                 then
                   if yt = zt
-                  then TermPairSet.add (t,t) (csubst zt t c')
-                  else TermPairSet.add (t,t2) (csubst zt t c')
+                  then TermPairSet.add (t,t) (cSubst zt t c')
+                  else TermPairSet.add (t,t2) (cSubst zt t c')
                 else
                   if yt = zt
-                  then TermPairSet.add (t1,t) (csubst zt t c')
-                  else TermPairSet.add (t1,t2) (csubst zt t c')
+                  then TermPairSet.add (t1,t) (cSubst zt t c')
+                  else TermPairSet.add (t1,t2) (cSubst zt t c')
               | Fun(s1,s2) ->
                 if xt = zt
-                then TermPairSet.add (t, Fun((tsubst zt s1 t ),(tsubst zt s2 t))) (csubst zt t c')
-                else TermPairSet.add (t1, Fun((tsubst zt s1 t ),(tsubst zt s2 t))) (csubst zt t c')
+                then TermPairSet.add (t, Fun((tSubst zt s1 t ),(tSubst zt s2 t))) (cSubst zt t c')
+                else TermPairSet.add (t1, Fun((tSubst zt s1 t ),(tSubst zt s2 t))) (cSubst zt t c')
             end
           | Fun(r1,r2) ->
             begin match t2 with
-              | Bool -> TermPairSet.add (Fun((tsubst zt r1 t ),(tsubst zt r2 t)),t2) (csubst zt t c')
-              | Nat -> TermPairSet.add (Fun((tsubst zt r1 t ),(tsubst zt r2 t)),t2) (csubst zt t c')
+              | Bool -> TermPairSet.add (Fun((tSubst zt r1 t ),(tSubst zt r2 t)),t2) (cSubst zt t c')
+              | Nat -> TermPairSet.add (Fun((tSubst zt r1 t ),(tSubst zt r2 t)),t2) (cSubst zt t c')
               | TVar(yt) ->
                 if yt = zt
-                then TermPairSet.add (Fun((tsubst zt r1 t ),(tsubst zt r2 t)),t) (csubst zt t c')
-                else TermPairSet.add (Fun((tsubst zt r1 t ),(tsubst zt r2 t)),t2) (csubst zt t c')
+                then TermPairSet.add (Fun((tSubst zt r1 t ),(tSubst zt r2 t)),t) (cSubst zt t c')
+                else TermPairSet.add (Fun((tSubst zt r1 t ),(tSubst zt r2 t)),t2) (cSubst zt t c')
               | Fun(s1,s2) ->
-                TermPairSet.add (Fun((tsubst zt r1 t ),(tsubst zt r2 t)),Fun((tsubst zt s1 t ),(tsubst zt s2 t))) (csubst zt t c')
+                TermPairSet.add (Fun((tSubst zt r1 t ),(tSubst zt r2 t)),Fun((tSubst zt s1 t ),(tSubst zt s2 t))) (cSubst zt t c')
             end
         end
     end
@@ -279,27 +279,27 @@ let rec unify (c : cset) (sb : sset) : uResult =
       begin match t with
         | Bool -> unify c' sb
         | Nat -> Stuck
-        | TVar(yt) -> unify (csubst yt s c') (TermPairSet.add (TVar(yt),Bool) (csubst yt s sb))
+        | TVar(yt) -> unify (cSubst yt s c') (TermPairSet.add (TVar(yt),Bool) (cSubst yt s sb))
         | Fun(t1,t2) -> Stuck
       end
     | Nat ->
       begin match t with
         | Bool -> Stuck
         | Nat -> unify c' sb
-        | TVar(yt) -> unify (csubst yt s c') (TermPairSet.add (TVar(yt),Nat) (csubst yt s sb))
+        | TVar(yt) -> unify (cSubst yt s c') (TermPairSet.add (TVar(yt),Nat) (cSubst yt s sb))
         | Fun(t1,t2) -> Stuck
       end
     | TVar(xt) ->
       begin match t with
-        | Bool -> unify (csubst xt t c') (TermPairSet.add (TVar(xt),Bool) (csubst xt t sb))
-        | Nat -> unify (csubst xt t c') (TermPairSet.add (TVar(xt),Nat) (csubst xt t sb))
+        | Bool -> unify (cSubst xt t c') (TermPairSet.add (TVar(xt),Bool) (cSubst xt t sb))
+        | Nat -> unify (cSubst xt t c') (TermPairSet.add (TVar(xt),Nat) (cSubst xt t sb))
         | TVar(yt) ->
           if xt = yt
           then unify c' sb
-          else unify (csubst xt t c') (TermPairSet.add (TVar(xt), t) (csubst xt t sb))
+          else unify (cSubst xt t c') (TermPairSet.add (TVar(xt), t) (cSubst xt t sb))
         | Fun(t1,t2) ->
           if (occurCheck xt t)
-          then unify (csubst xt t c') (TermPairSet.add (TVar(xt), t) (csubst xt t sb))
+          then unify (cSubst xt t c') (TermPairSet.add (TVar(xt), t) (cSubst xt t sb))
           else Stuck
       end
     | Fun(s1,s2) ->
@@ -308,7 +308,7 @@ let rec unify (c : cset) (sb : sset) : uResult =
         | Nat -> Stuck
         | TVar(yt) ->
           if (occurCheck yt s)
-          then unify (csubst yt s c') (TermPairSet.add (TVar(yt),s) (csubst yt s sb))
+          then unify (cSubst yt s c') (TermPairSet.add (TVar(yt),s) (cSubst yt s sb))
           else Stuck
         | Fun(t1,t2) -> unify (TermPairSet.union c' (TermPairSet.add (s2,t2) (TermPairSet.singleton (s1,t1)))) sb
       end

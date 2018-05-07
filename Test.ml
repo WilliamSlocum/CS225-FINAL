@@ -21,7 +21,7 @@ let rec solveType (s : sset) (t : ty) : ty =
       | (xT,tS) ->
         begin match xT with
           | TVar(xt) ->
-            let t' = tsubst xt t tS in
+            let t' = tSubst xt t tS in
             solveType s' t'
           | _ -> solveType s' t
         end
