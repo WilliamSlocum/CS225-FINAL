@@ -80,13 +80,13 @@ let uniqueVar() : string =
   "X" ^ string_of_int !n ;;
 
 (* Define Return Type for Infer Function *)
-type result =
+type iResult =
   | Val of ty * cset
   | Stuck
 [@@deriving show {with_path = false}]
 
 (* Infer Function *)
-let rec infer (g : tenv) (e : exp) (c : cset) : result = match e with
+let rec infer (g : tenv) (e : exp) (c : cset) : iResult = match e with
   | Var(x) ->
     let t = StringMap.find x g in
     Val(t, c)
@@ -260,13 +260,13 @@ let rec occurCheck (xt : tvar) (t : ty) : bool = match t with
     else false
 
 (* Define Return Type for Unify Function *)
-type uresult =
+type uResult =
   | Val of cset * sset
   | Stuck
 [@@deriving show {with_path = false}]
 
 (* Unify Function *)
-let rec unify (c : cset) (sb : sset) : uresult =
+let rec unify (c : cset) (sb : sset) : uResult =
   if TermPairSet.is_empty c
   then Val(c,sb)
   else
