@@ -158,16 +158,16 @@ let rec infer (g : tenv) (e : exp) (c : cset) : iResult = match e with
     end
 
 (* Helper Function, Substitution For Types *)
-let rec tSubst (zt : tvar) (t : ty) (tS : ty) : ty = match t with
+let rec tSubst (zt : tvar) (t : ty) (tSub : ty) : ty = match t with
   | Bool -> Bool
   | Nat -> Nat
   | TVar(xt) ->
     if xt = zt
-    then tS
+    then tSub
     else t
   | Fun(s1,s2) ->
-    let s1' = tSubst zt s1 tS in
-    let s2' = tSubst zt s2 tS in
+    let s1' = tSubst zt s1 tSub in
+    let s2' = tSubst zt s2 tSub in
     Fun(s1',s2')
 
 (* Unify Helper, Substitution Function For Constraint Sets *)
