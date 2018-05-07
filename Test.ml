@@ -34,25 +34,27 @@ let tests : (exp) list =
    If(Apply(Lambda("x",Var("x")),True),Zero,Zero);
    Succ(If(False,Zero,Succ(Zero)));
    Succ(Apply(Lambda("x",Succ(Var("x"))),Zero));
+   Pred(Succ(Pred(Zero)));
    Pred(Lambda("x",Succ(Var("x"))));
+   IsZero(If(True,Succ(Zero),Pred(Zero)));
    IsZero(Apply(Lambda("x", Var("x")),Succ(Zero)));
-   IsZero(Apply(Lambda("x", Var("x")),Succ(Zero)));
+   Lambda("x",Var("x"));
    Lambda("x",Succ(Var("x")));
-   Lambda("x",If(Var("x"),True,Var("x")));
-   Lambda("x",IsZero(If(Var("x"),Zero,Pred(Zero))));
+   Lambda("x",IsZero(If(IsZero(Var("x")),Zero,Pred(Var("x")))));
    Lambda("x",Lambda("y",IsZero(If(Var("x"),Zero,Pred(Var("y"))))));
    LambdaA("x",Bool,If(Var("x"),Var("x"),Var("x")));
    LambdaA("x",Fun(Nat,Bool),Apply(Var("x"),Zero));
    LambdaA("x",Bool,Lambda("y",If(Var("x"),Var("y"),Zero)));
-   LambdaA("x",Bool,Lambda("y",If(Var("y"),Var("x"),Zero)));
+   LambdaA("x",Fun(Nat,Bool),Lambda("y",Apply(Var("x"),Var("y"))));
+   Apply(Lambda("x",IsZero(Zero)),Zero);
    Apply(Lambda("x", Var("x")),True);
    Apply(Lambda("x",Var("x")),Lambda("y", Var("y")));
-   Apply(Apply(Lambda("w",Var("w")),Lambda("x",Var("x"))),Apply(Lambda("y",Var("y")),Lambda("z",Var("z"))));
+   Apply(Apply(Lambda("x",Var("x")),Lambda("y",Var("y"))),LambdaA("z",Bool,Var("z")));
   ] ;;
 
 List.iter (fun (e) ->
     print_string " " ;
-    print_endline " " ; print_string "--" ; print_endline " " ;
+    print_endline " " ; print_string "--------------------" ; print_endline " " ;
 
     print_endline " " ; print_string "EXPRESSION" ; print_endline " " ;
     print_endline ([%show : exp] e) ;
