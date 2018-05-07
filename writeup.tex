@@ -15,112 +15,127 @@
 \section*{Project: Type Reconstruction}
 
 \paragraph{Introduction}
-In class, we studied a Type Checker and Well-Typed Relation that calculated the Types of Expressions. To do this, we required the Types of Variables to be explicitly annotated. Take the Well-Typed Relation for Lambda Terms...
-
+In class, we studied a Type Checker and Well-Typed Relation that calculated the Types of Expressions. We required that the Types of Variables be explicitly annotated. Take the Well-Typed Relation for Lambda Terms...
+\\
 \begin{equation*}
-    \frac{\Gamma[x \mapsto \tau_{1}] \vdash t : \tau_{2}}
-    {\Gamma \vdash \lambda(x.\tau_{1}).t : \tau_{1} \to \tau_{2}}
+    \frac{\Gamma[\text{x} \mapsto \text{T}_{1}] \vdash t : \text{T}_{2}}
+    {\Gamma \vdash \lambda(\text{x} : \text{T}_{1}).t : \text{T}_{1} \to \text{T}_{2}}
+\end{equation*}
+\\
+Without annotating the Type of x, our Type Checker is unable to calculate the Type of any Expression that includes Lambda Terms. Let's look at an example...
+\begin{equation*}
+    \lambda\text{x}.\text{succ}(\text{x})
 \end{equation*}
 
-Without explicitly stating the Type of x, our Type Checker is unable to calculate the Type of any Expression that includes Lambda Terms. That being said, humans often don't require these explicit annotations in order to understand the Type of an Expression. We use fairly simple logic and reasoning to make these determinations. If we were to transcribe our thinking as we performed this reasoning, we would see that it resembles an executable procedure. There's no reason we cannot write a program that performs this same sort of reasoning. 
+The Type that x must have is obvious to us, but stumps our Type Checker. Simple logic allows us to see that x must have Type Nat and therefore, the Expression has Type Nat $\to$ Nat. Common sense inference such as this is natural for humans, but impossible for our current Type Checker. Let's update our Type Checker to inference like we do.
 
 \paragraph{Constraint-Based Typing}
-Instead of calculating the Type of an Expression, we will calculate a Constraint Set that must be satisfied in order for the Expression to be Well-Typed. A Constraint Set $C$ is a set of equations $\{S_{i} = T_{i}\}$. We say a substitution $\sigma$ unifies an equation $S = T$ if the substitution instances of $\sigma S$ and $\sigma T$ are identical. \\
+Rather than calculating the Type of an Expression, we will calculate a Constraint Set. Constraint Sets are sets of Type equations $\{\text{S}_{i} = \text{T}_{i}\}$. If an Expression's Constraint Set has a Unifying Solution, it is Well-Typed. Solutions are sets of Substitutions $\{\text{T}_{1} \to \text{T}_{2}\}$. We say a Solution Set $\sigma$ Unifies a Constraint Set if, for each equation $\text{S}_{i} = \text{T}_{i}$, the Substitution Instances are equal: $\{\sigma\text{S}_{i} = \sigma\text{T}_{i}\}$.\\
 
-We define the Constrain Typing Relation with the rule listed below. We read $\Gamma \vdash t : T |_{\emptyset} \{\}$ as "term t has the Type T under assumptions $\Gamma$ whenever Constraints C are satisfied". The $X$ subscripts are used to track the Type Variables introduced in each subderivation and ensure they are all distinct.
-
-\usetagform{nowidth}
-
-\begin{equation}
-    \frac{x : T \in \Gamma}{\Gamma \vdash x : T |_{\emptyset} \{\}}
-    \tag{CT-VAR}
-\end{equation}
-
-\begin{equation}
-    \frac{X \notin X  \Gamma,x:X \vdash t_{1}:T |_{X} C}
-    {\Gamma \vdash \lambda x.t_{1} : X \to T |_{X \cup \{X\}} C}
-    \tag{CT-ABSINF}
-\end{equation}
-
-\begin{equation}
-    \frac{\Gamma, x : T_{1} \vdash t_{2} : T_{2} |_{x} C}
-    {\Gamma \vdash \lambda(x : T_{1}).t_{2} : T_{1} \to T_{2} |_{x} C}
-    \tag{CT-ABS}
-\end{equation}
-
-\begin{equation}
-    \frac{\Gamma \vdash t_{1} : T_{1} |_{X_{1}} C_{1} \Gamma \vdash t_{1} : T_{1} |_{X_{1}} C_{1} C' = C_{1} \cup C_{2} \cup \{ T_{1} = T_{2} \to X\}}
-    {\Gamma, t_{1} t_{2} : X |_{X_{1} \cup X_{2} \cup X} C }
-    \tag{CT-APP}
-\end{equation}
-
-\begin{equation}
-    \Gamma \vdash 0 : Nat |_{\emptyset} \{\}
-    \tag{CT-ZERO}
-\end{equation}
-
-\begin{equation}
-    \frac{\Gamma \vdash t_{1} : T |_{X} C C' = C \cup \{T = Nat\}}
-    {\Gamma \vdash succ t_{1} : Nat |_{X} C'}
-    \tag{CT-SUCC}
-\end{equation}
-
-\begin{equation}
-    \frac{\Gamma \vdash t_{1} : T |_{X} C C' = C \cup \{T = Nat\}}
-    {\Gamma \vdash pred t_{1} : Nat |_{X} C'}
-    \tag{CT-PRED}
-\end{equation}
-
-\begin{equation}
-    \frac{\Gamma \vdash t_{1} : T |_{X} C \ C' = C \cup \{T = Nat\}}
-    {\Gamma \vdash iszero t_{1} : Nat |_{X} C'}
-    \tag{CT-ISZERO}
-\end{equation}
-
-\begin{equation}
-    \Gamma \vdash true : Bool |_{\emptyset} \{\}
-    \tag{CT-TRUE}
-\end{equation}
-
-\begin{equation}
-    \Gamma \vdash false : Bool |_{\emptyset} \{\}
-    \tag{CT-FALSE}
-\end{equation}
-
-\begin{equation}
-    \frac{\Gamma \vdash t_{1} |_{X_{1}} C_{1} \Gamma \vdash t_{2} |_{X_{2}} C_{2} \Gamma \vdash t_{3} |_{X_{3}} C_{3}
-    C' = C_{1} \cup C_{2} \cup C_{3} \cup \{T_{1} = Bool, T_{2} = T_{3}}
-    {\Gamma \vdash if t_{1} then t_{2} else t_{3} : T_{2} |_{X_{1} \cup X_{2} \cup X_{3}} C'}
-    \tag{CT-IF}
-\end{equation}
+\noindent Let's calculate the Constraint Set of the Expression from earlier...
+\begin{equation*}
+    \lambda\text{x}.\text{succ}(\text{x})\indent
+    \text{C} = \{\text{X} = \text{Nat}\}\indent
+    \sigma = \{\text{X} \to \text{Nat}\}
+\end{equation*}
 
 \paragraph{Base Language} 
 We will implement this Constraint Based Typing on the following Language...
 
 \begin{equation*}
   \begin{array}{rcl}
-    \tau \Coloneqq & \text{Bool} \mid \text{Nat} \mid \tau \to \tau \mid X \\
+    \tau \in \text{type} \Coloneqq & \text{Bool} \mid \text{Nat} \mid \tau \to \tau \mid X \\
   \end{array}
 \end{equation*}
 
 \begin{equation*}
   \begin{array}{rcl}
-    e & \Coloneqq & x \mid \text{True} \mid \text{False} \mid \text{if} \ (e) \ \{e\} \ \{e\} \\
-      & \mid      & \text{Zero} \mid \text{IsZero}(e) \mid \text{Pred}(e) \mid \text{Succ}(e) \\
-      & \mid      & \lambda x . \ e \mid \lambda (x.\tau) \ e \mid e \ e
+    t \in \text{exp} & \Coloneqq & x \mid \text{True} \mid \text{False} \mid \text{if} \ (t) \ \{t\} \ \{t\} \\
+      & \mid      & \text{Zero} \mid \text{IsZero}(t) \mid \text{Pred}(t) \mid \text{Succ}(t) \\
+      & \mid      & \lambda x . \ t \mid \lambda (x:\tau).t \mid t \ t
   \end{array}
 \end{equation*}
+\\
+\paragraph{Constraint Typing Relation}
+We will now give the complete Constraint Typing Relation. These relations are of the form $\Gamma \vdash t : \text{T} \ |_{X_{i}} \ \text{C}$, which is read as "\textit{Expression t has the Type T under assumptions $\Gamma$ given Constraints C are satisfied}". Some rules introduce Type Variables $X_{i}$. We use the notation $|_{X_{i}}$ to track their creation.
 
-CT-ABSINF is the Constraint Typing Rule for Lambda Terms without an explicit annotated Variable. Normally, this would cause a problem. But since we are simply calculating Constraint Sets, we do not need to know this Variable's Type. We say the Variable has the Type of some arbitrary Type Variable, in this case X. As we will see later, it is essential that whenever we create an arbitrary Type Variable such as this, it must be distinct from all others.
+\usetagform{nowidth}
+
+\begin{equation}
+    \frac{\text{x : T} \in \Gamma}{\Gamma \vdash \text{x : T} \ |_{\emptyset} \ \{\}}
+    \tag{Var}
+\end{equation}
+
+\begin{equation}
+    \frac{\text{X} \notin X \indent \Gamma,\text{x : X} \vdash t_{1}:\text{T } |_{X} \text{ C }}
+    {\Gamma \vdash \lambda x.t_{1} : \text{X} \to \text{T } |_{X \cup \{\text{X}\}} \ \text{C}}
+    \tag{AbsInf}
+\end{equation}
+
+\begin{equation}
+    \frac{\Gamma, x : \text{T}_{1} \vdash t_{2} : \text{T}_{2} \ |_{x} \text{ C} }
+    {\Gamma \vdash \lambda(x : \text{T}_{1}).t_{2} : \text{T}_{1} \to \text{T}_{2} \ |_{x} \text{ C}}
+    \tag{Abs}
+\end{equation}
+
+\begin{equation}
+    \frac{\Gamma \vdash t_{1} : \text{T}_{1} \ |_{X_{1}} \ \text{C}_{1} \indent \Gamma \vdash t_{2} : \text{T}_{2} \ |_{X_{2}} \ \text{C}_{2} \indent \text{C'} = \text{C}_{1} \cup \text{C}_{2} \cup \{ \text{T}_{1} = \text{T}_{2} \to \text{X}\}}
+    {\Gamma \vdash t_{1} t_{2} : \text{X} \ |_{X_{1} \cup X_{2} \cup \{ \text{X}\}} \ \text{C} }
+    \tag{App}
+\end{equation}
+
+\begin{equation}
+    \Gamma \vdash 0 : \text{Nat} \ |_{\emptyset} \ \{\}
+    \tag{Zero}
+\end{equation}
+
+\begin{equation}
+    \frac{\Gamma \vdash t_{1} : \text{T} \ |_{X} \ \text{C} \indent \text{C'} = \text{C} \cup \{\text{T} = \text{Nat}\}}
+    {\Gamma \vdash \text{succ} \ t_{1} : \text{Nat} \ |_{X} \ \text{C'} }
+    \tag{Succ}
+\end{equation}
+
+\begin{equation}
+    \frac{\Gamma \vdash t_{1} : \text{T} \ |_{X} \ \text{C} \indent \text{C'} = \text{C} \cup \{\text{T} = \text{Nat}\}}
+    {\Gamma \vdash \text{pred} \ t_{1} : \text{Nat} \ |_{X} \ \text{C'} }
+    \tag{Pred}
+\end{equation}
+
+\begin{equation}
+    \frac{\Gamma \vdash t_{1} : \text{T} \ |_{X} \ \text{C} \indent \text{C'} = \text{C} \cup \{\text{T} = \text{Nat}\}}
+    {\Gamma \vdash \text{iszero} \ t_{1} : \text{Nat} \ |_{X} \ \text{C'} }
+    \tag{IsZero}
+\end{equation}
+
+\begin{equation}
+    \Gamma \vdash \text{true} : \text{Bool} \ |_{\emptyset} \ \{\}
+    \tag{True}
+\end{equation}
+
+\begin{equation}
+    \Gamma \vdash \text{false} : \text{Bool} \ |_{\emptyset} \ \{\}
+    \tag{False}
+\end{equation}
+
+\begin{equation}
+\begin{array}{rcl}
+    \frac{\Gamma \vdash t_{1} : \text{T}_{1} \ |_{X_{1}} \ C_{1} \indent \Gamma \vdash t_{2} : \text{T}_{2} \ |_{X_{2}} \ C_{2} \indent \Gamma \vdash t_{3} : \text{T}_{3} \ |_{X_{3}} \ C_{3} \indent
+     \text{C'} = \text{C}_{1} \cup \text{C'}_{2} \cup \text{C'}_{3} \cup \{\text{T}_{1} = \text{Bool}, \text{T}_{2} = \text{T}_{3}\}}
+    {\Gamma \vdash \text{ if } t_{1} \text{ then } t_{2} \text{ else } t_{3} \ : \ T_{2} \ |_{X_{1} \cup X_{2} \cup X_{3}} \text{C'}}
+    \tag{If}
+\end{array}
+\end{equation}
+
+Notice that AbsInf is the Constraint Typing Rule for Lambda Terms without an annotated Variable. Since we are calculating Constraint Sets rather than Types, this isn't an issue. We provide the Variable an arbitrary Type Variable X in order to represent it in the Constraint Set. When multiple Type Variables are created, we must ensure that each one is unique.
 
 \paragraph{Set Unification}
 
-Calculating the Constraint Set for an Expression is only solving half of the problem. We still need to find a Solution to the Constraint Set. That is, we need to calculate a set of Substitutions that, when applied to the Constraint Set C, Unifies every equation in C. The Types and Programming Languages textbook provides the following pseudo-code for an algorithm that performs such a task.
+Calculating the Constraint Set for an Expression is solves only half of the problem. We still need to find a Solution to the Constraint Set. That is, we must calculate a set of Substitutions that, when applied to the Constraint Set C, Unifies every equation in C. The Types and Programming Languages textbook provides the following Pseudo-Code for an algorithm that performs such a task.
 
 \begin{equation*}
 \begin{array}{l}
     unify(C) = \text{if} \ C = \emptyset \ \text{then} \ [ \ ] \\
-    \indent \text{else let} \ {S = T} \cup C' = C \ in \\
+    \indent \text{else let} \ \{S = T\} \cup C' = C \ in \\
     \indent \text{if} \ S = T \\
     \indent\indent \text{then} \ unify(C') \\
     \indent \text{else if} \ S = X \ \text{and X} \notin FV(T) \\
@@ -128,49 +143,64 @@ Calculating the Constraint Set for an Expression is only solving half of the pro
     \indent \text{else if} \ T = X \text{and X} \notin FV(T) \\
     \indent\indent \text{then} \ unify([X \mapsto S]C') \circ [X \mapsto S] \\
     \indent \text{else if} \ S = S_{1} \to S_{2} \ \text{and} \ T = T_{1} \to T_{2} \\
-    \indent\indent \text{then} \ unify(C' \cup {S_{1} = T_{1},S_{2} = T_{2}}) \\
+    \indent\indent \text{then} \ unify(C' \cup \{S_{1} = T_{1},S_{2} = T_{2}\}) \\
     \indent \text{else} \\
     \indent\indent fail
 \end{array}
 \end{equation*}
 
-\paragraph{Implementation}
-We will now discuss the implementation of these concepts in Final.ml. \\
+\noindent We interpret $\{S = T\} \cup C' = C$ as "take an arbitrary Element $\{S = T\}$ from C, where C' equals C - $\{S = T\}$".\\
 
-We have implemented Constraint Sets using the Module TermPairSet. TermPairSet is a Set of elements of the form (Type,Type). We calculate Constraint Sets using the recursive function $infer$, which accepts a Type Environment, an Expression, and a Constraint Set as arguments. When we initially call $infer$, we do so with an empty Constraint Set. The Return Type of $infer$ is $result$, which is detailed below...
+\noindent We interpret $\text{if} \ \text{S} = \text{X}$ as "if Type S is some Type Variable X".\\
+
+\noindent We interpret $\text{X} \notin FV(T)$ as "Type Variable X is not in Type T". We call this an Occur Check. It prevents the algorithm from generating a Solution that includes a Cyclic Substitution such as $\text{X} \mapsto (\text{X} \to \text{X})$.\\
+
+\noindent We interpret $unify([X \mapsto T]C') \circ [X \mapsto T]$ as "Unify the Constraint Set C' where T has been substituted for X, add that Substitution to the Solution Set".
+
+
+\paragraph{Implementation}
+We will now discuss the implementation of these concepts in OCaml. \\
+
+To begin, we will remark on Type Variables. All four Helper Functions mentioned in this section use Type Variables in some way. In our implementation, Type Variables are constructed using a String: TVar("x"). Therefore, whenever we check the equivalence of Type Variables, what we do is check whether their Strings are equivalent. Doing this ensures no confusion between two Type Variable's theoretical equivalence and their equivalence in memory.\\
+
+Constraint Sets have been implemented using the Module TermPairSet. TermPairSet is a Set of elements of the form (Type,Type). Constraint Sets are calculated using the a Recursive Function Infer. Infer accepts a Type Environment, an Expression, and a Constraint Set as arguments. Infer's initial call is done with an empty Constraint Set. The Return Type of Infer is iResult, which is detailed below...
 
 \begin{equation}
     \begin{array}{l}
-    \text{type} \ result = \\
+    \text{type} \ iResult = \\
     \indent \mid \text{Val of} \ ty \ * \ ccset \\
     \indent \mid \text{Stuck}
     \end{array}
 \end{equation}
 
-Therefore, when $infer$ successfully terminates, it returns both a Type and a Constraint Set. When the given Expression turns out to be Well-Typed, this Type is indeed the Type of the Expression. When the given Expression is not Well-Typed, this Type is not meaningful. \\
+When Infer terminates, it returns a Type and a Constraint Set. When the initial Expression is Well-Typed, the Type returned is its Type. When the initial Expression is not Well-Typed, the returned Type is not meaningful. It doesn't appear that Infer will ever return Stuck as of right now.\\
 
-As seen in the Constraint Typing Rules, we must assure that each time we create a new Type Variable, it is distinct from all other. Thus, we must write a Helper Function to create unique Type Variables for $infer$. We accomplish this with $uniqueVar$, which increments the value of Reference Cell and uses that value to create a String. We use this string to build unique Type Variables. \\
+As mentioned earlier, newly created Type Variables must all be unique. The Helper Function UniqueVar accomplishes this. Each time UniqueVar is called, it increments the value of Reference Cell. It uses this new value to create a String, which is then used to construct a unique Type Variable. \\
 
-We calculate Solutions to Constraint Sets using the $unify$ function, which accepts a Constraint Sets and a Solution Set as arguments. Solution Sets are also implemented using the TermPairSet Module, and thus behave just the same as Constraint Sets. The Solution Set is always initially empty and is used to store the solution to the given Constraint Set. Similarly to $infer$, the Return Type of $unify$ is $uresult$, which is detailed below...
+Solutions to Constraint Sets are calculated by the Unify Function. Unify accepts a Constraint Set and a Solution Set as arguments. Solution Sets are also implemented using the TermPairSet Module, and thus behave just the same as Constraint Sets. Unify's initial call is done with an empty Solution Set. As Unify runs, it will remove Elements from the Constraint Set and add Elements to the Solution Set. The Return Type of Unify is uResult, which is detailed below...
 
 \begin{equation}
     \begin{array}{l}
-    \text{type} \ uresult = \\
+    \text{type} \ uResult = \\
     \indent \mid \text{Val of} \ cset \ * \ sset \\
     \indent \mid \text{Stuck}
     \end{array}
 \end{equation}
 
-When the given Constraint Set is unifiable, $unify$ returns a Constraint Set and a Solution Set. The Constraint Set will be empty, while the Solution Set will contain the Substitutions in the Solution. When the given Constraint is not unifiable, you have determined that the initial Expression is not Well-Typed and $unify$ returns Stuck. \\
+If the initial Constraint Set is Unifiable, Unify returns a Constraint Set and a Solution Set. This Constraint Set will be empty, while the Solution Set contains the unifying Substitutions. If the initial Constraint Set is not Unifiable, Unify returns Stuck. That means that the Expression of the initial Constraint Set is not Well-Typed. For example, the Constraint Set Element $\{\text{Nat} = \text{Bool}\}$ would cause the Unify Function to return Stuck. \\
 
-$unify$ requires several Helper Functions of its own. First, we must implement the portion of the pseudo-code written as $\text{X} \notin FV(T)$. This is known as an Occur Check. It prevents the algorithm from generating a solution involving a cyclic substitution such as $\text{X} \mapsto \text{X} \to \text{X}$. Since our Language only includes Finite Types, this shouldn't be allowed. \\
+Unify requires several Helper Functions of its own. We must implement the Occur Check from the Pseudo-Code. The function OccurCheck checks whether a Type Variable is within a Type. If so, the Occur Check fails.\\
 
-We must also implement Constraint Set Substitution, which we call $csubst$. This proves to be non-trivial, as we must examine each side of each equation in the Constraint Set. Since by definition, a given Type only has four basic forms, it is easiest to accomplish this by writing cases for each of the sixteen combinations an element of a Constraint Set can have. When we identify the correct form of a given element, we must then use a second Helper Function to perform substitution on the the Types themselves. Thankfully this Helper Function, which we call $tsubst$, is much more simple. \\
+We must also implement Constraint Set Substitution, which we call cSubst. To do this, we examine each side of each Equation in the Constraint Set. Any given Type has only four basic forms. Therefore, any two Types have sixteen possible combinations of forms. cSubst performs a Pattern Match on these combinations. Once we determine the correct combination, we must use another Helper Function to perform substitution on the the Types themselves. tSubst accomplishes this for us. \\
+
+Sometimes, there are multiple correct Solutions for a given Constraint Set. In these cases, Unify will return the Principle Solution. That is, Unify will return the most simple of the Solutions.
 
 \paragraph{Testing}
 
-In Test.ml, we perform several Test Cases on $infer$ and $unify$. For Test Case, we output the Expression, the Constraint Set, the Solution Set, and the Type of the Expression. \\
+In Test.ml, we perform twenty-two Test Cases on Infer and Unify, attempting to be as comprehensive as possible. For each Test Case, we output the Expression, the Constraint Set, the Solution Set, and the Type of the Expression. \\
 
-Often the calculated Type of an Expression is or contains a Type Variable. Sometimes, due to the nature of the Expression, we cannot be any more specific than this. Other times though, we notice that Type Variable within this Type are included in the Solution Set. Therefore, we can be more precise in our answer. We use the $solveType$ function to perform substitution on the Type, which requires to use of the Helper Function $tsubst$.
+Often, the Type of an Expression is or contains a Type Variable. Sometimes, due to the nature of the Expression, this is as specific as we can be. Other times though, we notice that Type Variable within this Type is included in the Solution Set. Therefore, we can be more precise in our answer. We use the SolveType Function to perform substitution on the Type, which requires to use of the Helper Function tSubst from earlier.
+
+In most cases, it is difficult to predict the Constraint Set of an Expression. Therefore, we cannot check if the output of our Functions are equivalent to some values known in advance. That being said, when considering the four pieces of the output all together, it is quite apparent that our Functions are producing reasonable answers.
 
 \end{document}
