@@ -4,7 +4,7 @@
 
 \newtagform{nowidth}{\llap\bgroup(}{)\egroup}
 
-\title{CS225 Spring 2018 -- Final Project Write-Up}
+\title{CS 225 Spring 2018 -- Final Project Write-Up}
 \author{
   William H Slocum \\ \small{\texttt{git:@WilliamSlocum}}
 }
@@ -130,7 +130,7 @@ Notice that AbsInf is the Constraint Typing Rule for Lambda Terms without an ann
 
 \paragraph{Set Unification}
 
-Calculating the Constraint Set for an Expression is solves only half of the problem. We still need to find a Solution to the Constraint Set. That is, we must calculate a set of Substitutions that, when applied to the Constraint Set C, Unifies every equation in C. The Types and Programming Languages textbook provides the following Pseudo-Code for an algorithm that performs such a task.
+Calculating the Constraint Set for an Expression only solves half of the problem. We still need to find a Solution to the Constraint Set. That is, we must calculate a set of Substitutions that, when applied to the Constraint Set C, Unifies every equation in C. The Types and Programming Languages textbook provides the following Pseudo-Code for an algorithm that performs such a task.
 
 \begin{equation*}
 \begin{array}{l}
@@ -163,19 +163,19 @@ We will now discuss the implementation of these concepts in OCaml. \\
 
 To begin, we will remark on Type Variables. All four Helper Functions mentioned in this section use Type Variables in some way. In our implementation, Type Variables are constructed using a String: TVar("x"). Therefore, whenever we check the equivalence of Type Variables, what we do is check whether their Strings are equivalent. Doing this ensures no confusion between two Type Variable's theoretical equivalence and their equivalence in memory.\\
 
-Constraint Sets have been implemented using the Module TermPairSet. TermPairSet is a Set of elements of the form (Type,Type). Constraint Sets are calculated using the a Recursive Function Infer. Infer accepts a Type Environment, an Expression, and a Constraint Set as arguments. Infer's initial call is done with an empty Constraint Set. The Return Type of Infer is iResult, which is detailed below...
+Constraint Sets have been implemented using the Module TermPairSet. TermPairSet is a Set of elements of the form (Type,Type). Constraint Sets are calculated using the Recursive Function Infer. Infer accepts a Type Environment, an Expression, and a Constraint Set as arguments. Infer's initial call is done with an empty Constraint Set and an empty Type Environment. The Return Type of Infer is iResult, which is detailed below...
 
 \begin{equation}
     \begin{array}{l}
     \text{type} \ iResult = \\
-    \indent \mid \text{Val of} \ ty \ * \ ccset \\
+    \indent \mid \text{Val of} \ ty \ * \ cset \\
     \indent \mid \text{Stuck}
     \end{array}
 \end{equation}
 
 When Infer terminates, it returns a Type and a Constraint Set. When the initial Expression is Well-Typed, the Type returned is its Type. When the initial Expression is not Well-Typed, the returned Type is not meaningful. It doesn't appear that Infer will ever return Stuck as of right now.\\
 
-As mentioned earlier, newly created Type Variables must all be unique. The Helper Function UniqueVar accomplishes this. Each time UniqueVar is called, it increments the value of Reference Cell. It uses this new value to create a String, which is then used to construct a unique Type Variable. \\
+As mentioned earlier, newly created Type Variables must all be unique. The Helper Function UniqueVar accomplishes this. Each time UniqueVar is called, it increments the value of a Reference Cell. It uses this new value to create a String, which is then used to construct a unique Type Variable. \\
 
 Solutions to Constraint Sets are calculated by the Unify Function. Unify accepts a Constraint Set and a Solution Set as arguments. Solution Sets are also implemented using the TermPairSet Module, and thus behave just the same as Constraint Sets. Unify's initial call is done with an empty Solution Set. As Unify runs, it will remove Elements from the Constraint Set and add Elements to the Solution Set. The Return Type of Unify is uResult, which is detailed below...
 
@@ -187,19 +187,19 @@ Solutions to Constraint Sets are calculated by the Unify Function. Unify accepts
     \end{array}
 \end{equation}
 
-If the initial Constraint Set is Unifiable, Unify returns a Constraint Set and a Solution Set. This Constraint Set will be empty, while the Solution Set contains the unifying Substitutions. If the initial Constraint Set is not Unifiable, Unify returns Stuck. That means that the Expression of the initial Constraint Set is not Well-Typed. For example, the Constraint Set Element $\{\text{Nat} = \text{Bool}\}$ would cause the Unify Function to return Stuck. \\
+If the initial Constraint Set is Unifiable, Unify returns a Constraint Set and a Solution Set. This Constraint Set will be empty, while the Solution Set contains the Unifying Substitutions. If the initial Constraint Set is not Unifiable, Unify returns Stuck. That means that the Expression of the initial Constraint Set is not Well-Typed. For example, the Constraint Set Element $\{\text{Nat} = \text{Bool}\}$ would cause the Unify Function to return Stuck. \\
 
 Unify requires several Helper Functions of its own. We must implement the Occur Check from the Pseudo-Code. The function OccurCheck checks whether a Type Variable is within a Type. If so, the Occur Check fails.\\
 
-We must also implement Constraint Set Substitution, which we call cSubst. To do this, we examine each side of each Equation in the Constraint Set. Any given Type has only four basic forms. Therefore, any two Types have sixteen possible combinations of forms. cSubst performs a Pattern Match on these combinations. Once we determine the correct combination, we must use another Helper Function to perform substitution on the the Types themselves. tSubst accomplishes this for us. \\
+We must also implement Constraint Set Substitution, which we call cSubst. To do this, we examine each side of each Equation in the Constraint Set. Any given Type has only four basic forms. Therefore, any two Types have sixteen possible combinations of forms. cSubst performs a Pattern Match on these combinations. Once we determine the correct combination, we must use another Helper Function to perform substitution on the the Types themselves. tSubst accomplishes this. \\
 
-Sometimes, there are multiple correct Solutions for a given Constraint Set. In these cases, Unify will return the Principle Solution. That is, Unify will return the most simple of the Solutions.
+Sometimes, there are multiple correct Solutions for a given Constraint Set. In these cases, Unify will return the Principle Solution. That is, Unify will return the most simple Solution.
 
 \paragraph{Testing}
 
-In Test.ml, we perform twenty-two Test Cases on Infer and Unify, attempting to be as comprehensive as possible. For each Test Case, we output the Expression, the Constraint Set, the Solution Set, and the Type of the Expression. \\
+In Test.ml, we perform twenty-two Test Cases on Infer and Unify, attempting to be as comprehensive as possible. For each Test Case, we output the Expression, its Constraint Set, the corresponding Solution Set, and the resulting Type of the Expression. \\
 
-Often, the Type of an Expression is or contains a Type Variable. Sometimes, due to the nature of the Expression, this is as specific as we can be. Other times though, we notice that Type Variable within this Type is included in the Solution Set. Therefore, we can be more precise in our answer. We use the SolveType Function to perform substitution on the Type, which requires to use of the Helper Function tSubst from earlier.
+Often, the Type of an Expression is or contains a Type Variable. Sometimes, due to the nature of the Expression, this is as specific as we can be. Other times though, we notice that this Type Variable is included in the Solution Set. Therefore, we can be more precise in our answer. We use the SolveType Function to perform substitution on the Type, which requires the use of the Helper Function tSubst from earlier.\\
 
 In most cases, it is difficult to predict the Constraint Set of an Expression. Therefore, we cannot check if the output of our Functions are equivalent to some values known in advance. That being said, when considering the four pieces of the output all together, it is quite apparent that our Functions are producing reasonable answers.
 
