@@ -201,6 +201,9 @@ In Test.ml, we perform twenty-two Test Cases on Infer and Unify, attempting to b
 
 Often, the Type of an Expression is or contains a Type Variable. Sometimes, due to the nature of the Expression, this is as specific as we can be. Other times though, we notice that this Type Variable is included in the Solution Set. Therefore, we can be more precise in our answer. We use the SolveType Function to perform substitution on the Type, which requires the use of the Helper Function tSubst from earlier.\\
 
-In most cases, it is difficult to predict the Constraint Set of an Expression. Therefore, we cannot check if the output of our Functions are equivalent to some values known in advance. That being said, when considering the four pieces of the output all together, it is quite apparent that our Functions are producing reasonable answers.
+In most cases, it is difficult to predict the Constraint Set of an Expression. Therefore, we cannot check if the output of our Functions are equivalent to some values known in advance. That being said, when considering the four pieces of the output together, it is apparent for most Test Cases that our Functions are producing reasonable answers.
+
+\paragraph{Acknowledgement}
+StringMap.ml and Util.ml Provided by Professor David Darais.
 
 \end{document}
